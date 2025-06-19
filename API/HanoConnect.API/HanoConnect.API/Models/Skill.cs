@@ -13,7 +13,7 @@ namespace HanoConnect.API.Models
 
         [Required]
         [MaxLength(100)]
-        public string SkillName { get; set; }
+        public required string SkillName { get; set; } // Đã thêm từ khóa 'required'
 
         // Navigation properties
         public ICollection<VolunteerSkill> VolunteerSkills { get; set; } = new List<VolunteerSkill>();

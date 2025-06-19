@@ -13,7 +13,7 @@ namespace HanoConnect.API.Models
 
         [Required] // NOT NULL
         [MaxLength(50)] // NVARCHAR(50)
-        public string RoleName { get; set; }
+        public required string RoleName { get; set; } // Đã thêm từ khóa 'required'
 
         // Navigation property for one-to-many relationship with UserRoles
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();

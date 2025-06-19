@@ -13,10 +13,10 @@ namespace HanoConnect.API.Models
 
         [Required]
         [MaxLength(100)]
-        public string CauseName { get; set; }
+        public required string CauseName { get; set; } // Đã thêm từ khóa 'required'
 
         // Navigation properties
         public ICollection<VolunteerCause> VolunteerCauses { get; set; } = new List<VolunteerCause>();
-        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>(); // Opportunities related to this cause
+        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>();
     }
 }

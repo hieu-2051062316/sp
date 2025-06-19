@@ -17,47 +17,47 @@ namespace HanoConnect.API.Models
 
         [Required]
         [MaxLength(255)]
-        public string Title { get; set; } // Không cần sửa, đã có [Required]
+        public required string Title { get; set; } // <--- ĐÃ SỬA: Thêm từ khóa 'required' ở đây
 
-        // [Required] // <--- Xóa [Required] nếu Description có thể null trong DB
+        // [Required] // <--- Giữ nguyên khuyến nghị: Xóa [Required] nếu Description có thể null trong DB
         [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string? Description { get; set; } // <--- Thêm '?' và xem xét xóa [Required] ở trên
+        public string? Description { get; set; } // Đã thêm '?'
 
         public int CauseId { get; set; }
 
         [MaxLength(255)]
-        public string? Location { get; set; } // <--- Thêm '?'
+        public string? Location { get; set; } // Đã thêm '?'
 
-        public DateTime? StartDate { get; set; } // Đã là nullable, không cần sửa
-        public DateTime? EndDate { get; set; } // Đã là nullable, không cần sửa
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
-        public bool IsFlexibleTime { get; set; } = false; // bool là non-nullable, đã có giá trị mặc định, không cần sửa
+        public bool IsFlexibleTime { get; set; } = false;
 
-        public int? RequiredVolunteers { get; set; } // Đã là nullable, không cần sửa
+        public int? RequiredVolunteers { get; set; }
 
         [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string? Benefits { get; set; } // <--- Thêm '?'
+        public string? Benefits { get; set; } // Đã thêm '?'
 
         [MaxLength(255)]
-        public string? ContactInfo { get; set; } // <--- Thêm '?'
+        public string? ContactInfo { get; set; } // Đã thêm '?'
 
         [Column(TypeName = "Date")] // DATE type
-        public DateTime? ApplicationDeadline { get; set; } // Đã là nullable, không cần sửa
+        public DateTime? ApplicationDeadline { get; set; }
 
         [MaxLength(50)]
-        public string Status { get; set; } = "Open"; // Đã có giá trị mặc định, không cần sửa
+        public string Status { get; set; } = "Open";
 
-        public bool IsApprovedByAdmin { get; set; } = false; // bool là non-nullable, đã có giá trị mặc định, không cần sửa
+        public bool IsApprovedByAdmin { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } // DateTime là non-nullable, thường được gán giá trị khi tạo đối tượng. Không cần sửa nếu bạn gán nó khi khởi tạo.
-        public DateTime UpdatedAt { get; set; } // Tương tự CreatedAt
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         // Navigation properties
         [ForeignKey("OrganizationId")]
-        public required Organization Organization { get; set; } // <--- Thêm 'required'
+        public required Organization Organization { get; set; } // Đã thêm 'required'
 
         [ForeignKey("CauseId")]
-        public required Cause Cause { get; set; } // <--- Thêm 'required'
+        public required Cause Cause { get; set; } // Đã thêm 'required'
 
         // Khắc phục: Khởi tạo các collection
         public ICollection<OpportunitySkill> OpportunitySkills { get; set; } = new List<OpportunitySkill>();

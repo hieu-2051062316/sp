@@ -16,39 +16,39 @@ namespace HanoConnect.API.Models
 
         [Required]
         [MaxLength(255)]
-        public string OrganizationName { get; set; }
+        public required string OrganizationName { get; set; } // Đã thêm từ khóa 'required'
 
         [MaxLength(255)]
-        public string? ContactPerson { get; set; } // <--- Thêm '?'
+        public string? ContactPerson { get; set; }
 
         [MaxLength(20)]
-        public string? ContactPhone { get; set; } // <--- Thêm '?'
+        public string? ContactPhone { get; set; }
 
         [MaxLength(255)]
-        public string? Address { get; set; } // <--- Thêm '?'
+        public string? Address { get; set; }
 
         [MaxLength(255)]
-        public string? Website { get; set; } // <--- Thêm '?'
+        public string? Website { get; set; }
 
         [Column(TypeName = "NVARCHAR(MAX)")] // Maps to SQL Server NVARCHAR(MAX)
-        public string? Description { get; set; } // <--- Thêm '?'
+        public string? Description { get; set; }
 
-        public bool IsVerified { get; set; } // BIT DEFAULT 0 (bool là non-nullable type, mặc định là false, không gây cảnh báo)
+        public bool IsVerified { get; set; }
 
-        public int? VerifiedByAdminId { get; set; } // Nullable FK to Admin User
-        public DateTime? VerificationTime { get; set; } // Nullable DateTime (đã là nullable rồi, không cần sửa)
+        public int? VerifiedByAdminId { get; set; }
+        public DateTime? VerificationTime { get; set; }
 
-        public DateTime CreatedAt { get; set; } // DateTime là non-nullable, nếu không được gán, sẽ có giá trị mặc định. Nếu bạn muốn nó là nullable, thêm '?'. Tuy nhiên, CreatedAt thường không null.
-        public DateTime UpdatedAt { get; set; } // Tương tự CreatedAt
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         // Navigation properties
         [ForeignKey("UserId")]
-        public required User User { get; set; } // <--- Thêm 'required'
+        public required User User { get; set; }
 
         [ForeignKey("VerifiedByAdminId")]
-        public User? VerifiedByAdmin { get; set; } // <--- Thêm '?'
+        public User? VerifiedByAdmin { get; set; }
 
-        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>(); // <--- Khởi tạo
-        public ICollection<Feedback> ReceivedFeedbacks { get; set; } = new List<Feedback>(); // <--- Khởi tạo
+        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>();
+        public ICollection<Feedback> ReceivedFeedbacks { get; set; } = new List<Feedback>();
     }
 }

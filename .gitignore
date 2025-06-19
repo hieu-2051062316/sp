@@ -1,0 +1,98 @@
+# ===============================================
+# .gitignore for HanoConnect Monorepo
+# Includes rules for Android Studio, Visual Studio, and ASP.NET Core
+# ===============================================
+
+# -----------------------------------------------
+# Android Studio / Gradle specific files
+# -----------------------------------------------
+.gradle/
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+*.iml # IntelliJ IDEA/Android Studio module files
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml # Local IDE settings, can be ignored
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/gradle.xml # If you manage Gradle settings locally and don't want to commit
+.idea/json_schemas.xml # If you manage JSON schemas locally
+.idea/vcs.xml # If you manage VCS settings locally
+.gradle-et/ # Gradle Enterprise related files
+
+# -----------------------------------------------
+# Visual Studio / .NET specific files
+# -----------------------------------------------
+# Visual Studio temporary files and solution-specific settings
+.vs/
+*.suo
+*.user
+*.aps
+*.bsc
+*.map
+*.ncb
+*.opensdf
+*.sdf
+*.bak
+*.log
+*.docstates
+*.vstemplate
+*.vstemplate.user
+*.vstemplate.vsixmanifest
+
+# Build results and compiled binaries
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.cache
+*.exp
+*.lib
+*.pdb
+*.sbr
+*.res
+
+# NuGet packages
+packages/
+*.nupkg
+*.snupkg
+.nuget/
+project.lock.json
+
+# Rider IDE specific files (if you ever use JetBrains Rider)
+.idea/ # This might conflict if Android Studio also uses .idea for project settings.
+       # If you have specific Android Studio .idea files you want to keep,
+       # you might need to make this rule more granular or exclude them.
+       # However, for typical setup, ignoring .idea/ is common.
+*.iml
+
+# ASP.NET Core specific configurations
+appsettings.Development.json # <--- CRITICAL: DO NOT COMMIT LOCAL CONNECTION STRINGS/SECRETS
+appsettings.Production.json # Usually managed via environment variables in production
+*.dbmdl
+*.dbproj
+*.publish.xml
+dotnet-tools.json
+.config/
+.tools/
+
+# Kestrel SSL certificates (if generated locally for HTTPS development)
+%TEMP%\.dotnet\corefx\cryptography\x509stores\my\*.pfx
+*.pfx
+
+# -----------------------------------------------
+# Operating System specific files
+# -----------------------------------------------
+.DS_Store # macOS specific
+Thumbs.db # Windows specific
+Desktop.ini # Windows specific
+
+# -----------------------------------------------
+# Logs and other temporary files
+# -----------------------------------------------
+*.log
+*.sqlite3 # If you use SQLite for local databases

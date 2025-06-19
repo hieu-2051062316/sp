@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using HanoConnect.API.Models; // Đảm bảo đã include namespace của Models
+﻿using Microsoft.EntityFrameworkCore; // Đây là dòng quan trọng nhất cho DbContext, DbSet, ModelBuilder
+using HanoConnect.API.Models;
+// Các using khác nếu cần (System, System.Collections.Generic, System.ComponentModel.DataAnnotations, etc.)
 
 namespace HanoConnect.API.Data
 {

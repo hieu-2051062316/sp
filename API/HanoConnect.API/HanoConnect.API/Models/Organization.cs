@@ -19,38 +19,36 @@ namespace HanoConnect.API.Models
         public string OrganizationName { get; set; }
 
         [MaxLength(255)]
-        public string ContactPerson { get; set; }
+        public string? ContactPerson { get; set; } // <--- Thêm '?'
 
         [MaxLength(20)]
-        public string ContactPhone { get; set; }
+        public string? ContactPhone { get; set; } // <--- Thêm '?'
 
         [MaxLength(255)]
-        public string Address { get; set; }
+        public string? Address { get; set; } // <--- Thêm '?'
 
         [MaxLength(255)]
-        public string Website { get; set; }
+        public string? Website { get; set; } // <--- Thêm '?'
 
         [Column(TypeName = "NVARCHAR(MAX)")] // Maps to SQL Server NVARCHAR(MAX)
-        public string Description { get; set; }
+        public string? Description { get; set; } // <--- Thêm '?'
 
-        public bool IsVerified { get; set; } // BIT DEFAULT 0
+        public bool IsVerified { get; set; } // BIT DEFAULT 0 (bool là non-nullable type, mặc định là false, không gây cảnh báo)
 
         public int? VerifiedByAdminId { get; set; } // Nullable FK to Admin User
-        public DateTime? VerificationTime { get; set; } // Nullable DateTime
+        public DateTime? VerificationTime { get; set; } // Nullable DateTime (đã là nullable rồi, không cần sửa)
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } // DateTime là non-nullable, nếu không được gán, sẽ có giá trị mặc định. Nếu bạn muốn nó là nullable, thêm '?'. Tuy nhiên, CreatedAt thường không null.
+        public DateTime UpdatedAt { get; set; } // Tương tự CreatedAt
 
         // Navigation properties
         [ForeignKey("UserId")]
-        public User User { get; set; } // The user account associated with this organization
+        public required User User { get; set; } // <--- Thêm 'required'
 
         [ForeignKey("VerifiedByAdminId")]
-        public User VerifiedByAdmin { get; set; } // The admin user who verified this organization (nullable)
+        public User? VerifiedByAdmin { get; set; } // <--- Thêm '?'
 
-        public ICollection<Opportunity> Opportunities { get; set; } // Opportunities posted by this organization
-
-        // Feedback relationships
-        public ICollection<Feedback> ReceivedFeedbacks { get; set; } // Feedbacks received by this organization (as RatedOrganizationId)
+        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>(); // <--- Khởi tạo
+        public ICollection<Feedback> ReceivedFeedbacks { get; set; } = new List<Feedback>(); // <--- Khởi tạo
     }
 }

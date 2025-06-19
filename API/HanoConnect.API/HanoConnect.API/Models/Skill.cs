@@ -16,7 +16,7 @@ namespace HanoConnect.API.Models
         public string SkillName { get; set; }
 
         // Navigation properties
-        public ICollection<VolunteerSkill> VolunteerSkills { get; set; }
-        public ICollection<OpportunitySkill> OpportunitySkills { get; set; }
+        public ICollection<VolunteerSkill> VolunteerSkills { get; set; } = new List<VolunteerSkill>();
+        public ICollection<OpportunitySkill> OpportunitySkills { get; set; } = new List<OpportunitySkill>();
     }
 }

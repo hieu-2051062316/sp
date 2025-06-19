@@ -15,9 +15,9 @@ namespace HanoConnect.API.Models
 
         // Navigation properties for foreign keys
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public required User User { get; set; } // Added 'required'
 
         [ForeignKey("RoleId")]
-        public Role Role { get; set; }
+        public required Role Role { get; set; } // Added 'required'
     }
 }

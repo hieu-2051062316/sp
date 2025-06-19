@@ -17,22 +17,24 @@ namespace HanoConnect.API.Models
         public DateTime ApplicationTime { get; set; } // DEFAULT GETDATE()
 
         [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string MotivationLetter { get; set; }
+        public string? MotivationLetter { get; set; } // <--- Thêm '?' nếu trường này có thể null trong DB
 
         [MaxLength(50)]
-        public string Status { get; set; } = "Pending"; // DEFAULT 'Pending'
+        public string Status { get; set; } = "Pending"; // Đã xử lý bằng giá trị mặc định, không cần sửa
 
         [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string OrganizationNotes { get; set; }
+        public string? OrganizationNotes { get; set; } // <--- Thêm '?' nếu trường này có thể null trong DB
 
         // Navigation properties
         [ForeignKey("OpportunityId")]
-        public Opportunity Opportunity { get; set; }
+        public required Opportunity Opportunity { get; set; } // <--- Thêm 'required'
 
         [ForeignKey("VolunteerUserId")]
-        public User VolunteerUser { get; set; }
+        public required User VolunteerUser { get; set; } // <--- Thêm 'required'
 
         // Feedback can be associated with an application (nullable FK in DB)
-        // public Feedback Feedback { get; set; } // If one-to-one or one-to-many from Application to Feedback
+        // public Feedback Feedback { get; set; } // Nếu thuộc tính này đang bị comment, nó sẽ không gây cảnh báo.
+        // Nếu bạn bỏ comment và Feedback là nullable, hãy thêm '?':
+        // public Feedback? Feedback { get; set; }
     }
 }

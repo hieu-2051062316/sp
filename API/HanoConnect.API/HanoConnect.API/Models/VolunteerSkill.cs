@@ -15,9 +15,9 @@ namespace HanoConnect.API.Models
 
         // Navigation properties
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public required User User { get; set; } // Thêm 'required'
 
         [ForeignKey("SkillId")]
-        public Skill Skill { get; set; }
+        public required Skill Skill { get; set; } // Thêm 'required'
     }
 }

@@ -19,21 +19,21 @@ namespace HanoConnect.API.Models
         public int? Score { get; set; } // Nullable, as in your schema
 
         [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string Comment { get; set; }
+        public string? Comment { get; set; } // <--- Đã thêm '?' để cho phép null, giải quyết cảnh báo CS8618
 
         public DateTime FeedbackTime { get; set; } // DEFAULT GETDATE()
 
         // Navigation properties
         [ForeignKey("ApplicationId")]
-        public Application Application { get; set; }
+        public Application? Application { get; set; } // <--- Đã thêm '?' để khớp với ApplicationId (nullable)
 
         [ForeignKey("RaterUserId")]
-        public User RaterUser { get; set; } // User who gave the feedback
+        public required User RaterUser { get; set; } // <--- Đã thêm 'required' để khớp với RaterUserId (not null)
 
         [ForeignKey("RatedUserId")]
-        public User RatedUser { get; set; } // User who received the feedback (if applicable)
+        public User? RatedUser { get; set; } // <--- Đã thêm '?' để khớp với RatedUserId (nullable)
 
         [ForeignKey("RatedOrganizationId")]
-        public Organization RatedOrganization { get; set; } // Organization that received the feedback (if applicable)
+        public Organization? RatedOrganization { get; set; } // <--- Đã thêm '?' để khớp với RatedOrganizationId (nullable)
     }
 }

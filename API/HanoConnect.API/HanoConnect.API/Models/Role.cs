@@ -16,6 +16,6 @@ namespace HanoConnect.API.Models
         public string RoleName { get; set; }
 
         // Navigation property for one-to-many relationship with UserRoles
-        public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }

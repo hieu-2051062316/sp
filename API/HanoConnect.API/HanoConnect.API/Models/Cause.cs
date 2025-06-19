@@ -16,7 +16,7 @@ namespace HanoConnect.API.Models
         public string CauseName { get; set; }
 
         // Navigation properties
-        public ICollection<VolunteerCause> VolunteerCauses { get; set; }
-        public ICollection<Opportunity> Opportunities { get; set; } // Opportunities related to this cause
+        public ICollection<VolunteerCause> VolunteerCauses { get; set; } = new List<VolunteerCause>();
+        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>(); // Opportunities related to this cause
     }
 }

@@ -15,9 +15,9 @@ namespace HanoConnect.API.Models
 
         // Navigation properties
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public required User User { get; set; } // Đã thêm 'required'
 
         [ForeignKey("CauseId")]
-        public Cause Cause { get; set; }
+        public required Cause Cause { get; set; } // Đã thêm 'required'
     }
 }

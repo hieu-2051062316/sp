@@ -15,9 +15,9 @@ namespace HanoConnect.API.Models
 
         // Navigation properties
         [ForeignKey("OpportunityId")]
-        public Opportunity Opportunity { get; set; }
+        public required Opportunity Opportunity { get; set; } // Added 'required'
 
         [ForeignKey("SkillId")]
-        public Skill Skill { get; set; }
+        public required Skill Skill { get; set; } // Added 'required'
     }
 }

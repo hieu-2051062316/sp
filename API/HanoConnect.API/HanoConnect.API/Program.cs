@@ -1,6 +1,7 @@
 ﻿using HanoConnect.API.Data;
 using HanoConnect.API.Interfaces; // Thêm dòng này để sử dụng IGenericRepository
 using HanoConnect.API.Repositories; // Thêm dòng này để sử dụng GenericRepository
+using HanoConnect.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register Generic Repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+// Register specific Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Register Services
+builder.Services.AddScoped<IUserService, UserService>();
 
 // --- Kết thúc phần thêm code của bạn ---
 

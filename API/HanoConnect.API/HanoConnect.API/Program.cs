@@ -1,5 +1,7 @@
-﻿using HanoConnect.API.Data; // Thêm dòng này để sử dụng ApplicationDbContext
-using Microsoft.EntityFrameworkCore; // Thêm dòng này để sử dụng các phương thức mở rộng của EF Core
+﻿using HanoConnect.API.Data;
+using HanoConnect.API.Interfaces; // Thêm dòng này để sử dụng IGenericRepository
+using HanoConnect.API.Repositories; // Thêm dòng này để sử dụng GenericRepository
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,9 @@ builder.Services.AddSwaggerGen();
 // Đăng ký ApplicationDbContext với SQL Server và chuỗi kết nối từ appsettings.Development.json
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register Generic Repository
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 // --- Kết thúc phần thêm code của bạn ---
 

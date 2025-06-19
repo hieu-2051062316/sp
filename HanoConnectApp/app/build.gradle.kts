@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.hanoconnectapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.hanoconnectapp"

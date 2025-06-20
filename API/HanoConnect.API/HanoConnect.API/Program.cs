@@ -24,9 +24,14 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 // Register specific Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<ICauseRepository, CauseRepository>();
+
 
 // Register Services
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ICauseService, CauseService>();
 
 // --- Kết thúc phần thêm code của bạn ---
 

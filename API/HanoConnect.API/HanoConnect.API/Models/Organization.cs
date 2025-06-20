@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization; 
 
 namespace HanoConnect.API.Models
 {
@@ -12,11 +13,12 @@ namespace HanoConnect.API.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrganizationId { get; set; }
 
+        // Khóa ngoại, UserId là bắt buộc để liên kết với User
         public int UserId { get; set; } // FK to Users table (Unique in DB)
 
         [Required]
         [MaxLength(255)]
-        public required string OrganizationName { get; set; } // Đã thêm từ khóa 'required'
+        public required string OrganizationName { get; set; }
 
         [MaxLength(255)]
         public string? ContactPerson { get; set; }
@@ -43,12 +45,17 @@ namespace HanoConnect.API.Models
 
         // Navigation properties
         [ForeignKey("UserId")]
-        public required User User { get; set; }
+        [JsonIgnore] // Thêm thuộc tính này để bỏ qua khi deserialize từ request body
+        public User? User { get; set; }
 
         [ForeignKey("VerifiedByAdminId")]
+        [JsonIgnore]
         public User? VerifiedByAdmin { get; set; }
 
-        public ICollection<Opportunity> Opportunities { get; set; } = new List<Opportunity>();
-        public ICollection<Feedback> ReceivedFeedbacks { get; set; } = new List<Feedback>();
+        [JsonIgnore] 
+        public ICollection<Opportunity>? Opportunities { get; set; } = new List<Opportunity>();
+
+        [JsonIgnore]
+        public ICollection<Feedback>? ReceivedFeedbacks { get; set; } = new List<Feedback>();
     }
 }

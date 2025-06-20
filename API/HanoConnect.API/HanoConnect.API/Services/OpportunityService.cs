@@ -32,24 +32,68 @@ namespace HanoConnect.API.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Opportunity>> GetAllOpportunitiesAsync()
+        // Đã thêm static vào phương thức ánh xạ nếu nó không sử dụng bất kỳ trường instance nào
+        // và xử lý trường hợp opportunity là null
+        private static OpportunityResponseDto? MapToOpportunityResponseDto(Opportunity? opportunity) // ĐÃ SỬA: Thêm '?' cho tham số và kiểu trả về
         {
-            return await _context.Opportunities
-                                 .Include(o => o.Organization)
-                                 .Include(o => o.Cause)
-                                 .Include(o => o.OpportunitySkills)
-                                     .ThenInclude(os => os.Skill)
-                                 .ToListAsync();
+            if (opportunity == null) return null; // ĐÃ SỬA: Trả về null nếu đối tượng đầu vào là null
+
+            return new OpportunityResponseDto
+            {
+                OpportunityId = opportunity.OpportunityId,
+                Title = opportunity.Title,
+                Description = opportunity.Description,
+                Location = opportunity.Location,
+                StartDate = opportunity.StartDate,
+                EndDate = opportunity.EndDate,
+                IsFlexibleTime = opportunity.IsFlexibleTime,
+                RequiredVolunteers = opportunity.RequiredVolunteers,
+                Benefits = opportunity.Benefits,
+                ContactInfo = opportunity.ContactInfo,
+                ApplicationDeadline = opportunity.ApplicationDeadline,
+                Status = opportunity.Status,
+                IsApprovedByAdmin = opportunity.IsApprovedByAdmin,
+                CreatedAt = opportunity.CreatedAt,
+                UpdatedAt = opportunity.UpdatedAt,
+
+                OrganizationId = opportunity.OrganizationId,
+                OrganizationName = opportunity.Organization?.OrganizationName ?? "N/A", // ĐÃ SỬA: Dùng toán tử null-conditional ?.
+                OrganizationContactPerson = opportunity.Organization?.ContactPerson, // ĐÃ SỬA: Dùng toán tử null-conditional ?.
+
+                CauseId = opportunity.CauseId,
+                CauseName = opportunity.Cause?.CauseName ?? "N/A", // ĐÃ SỬA: Dùng toán tử null-conditional ?.
+
+                Skills = opportunity.OpportunitySkills?
+                            .Select(os => new SkillDto
+                            {
+                                SkillId = os.SkillId,
+                                SkillName = os.Skill?.SkillName ?? "N/A" // ĐÃ SỬA: Dùng toán tử null-conditional ?.
+                            })
+                            .ToList() ?? new List<SkillDto>() // ĐÃ SỬA: Nếu OpportunitySkills là null, trả về List<SkillDto> rỗng
+            };
         }
 
-        public async Task<Opportunity?> GetOpportunityByIdAsync(int id)
+        public async Task<IEnumerable<OpportunityResponseDto>> GetAllOpportunitiesAsync()
         {
-            return await _context.Opportunities
-                                 .Include(o => o.Organization)
-                                 .Include(o => o.Cause)
-                                 .Include(o => o.OpportunitySkills)
-                                     .ThenInclude(os => os.Skill)
-                                 .FirstOrDefaultAsync(o => o.OpportunityId == id);
+            var opportunities = await _context.Opportunities
+                                            .Include(o => o.Organization)
+                                            .Include(o => o.Cause)
+                                            .Include(o => o.OpportunitySkills)
+                                                .ThenInclude(os => os.Skill)
+                                            .ToListAsync();
+            // Đảm bảo không có null trong list khi Select
+            return opportunities.Select(o => MapToOpportunityResponseDto(o)).Where(dto => dto != null)!; // ĐÃ SỬA: Lọc bỏ null và dùng null-forgiving operator
+        }
+
+        public async Task<OpportunityResponseDto?> GetOpportunityByIdAsync(int id)
+        {
+            var opportunity = await _context.Opportunities
+                                            .Include(o => o.Organization)
+                                            .Include(o => o.Cause)
+                                            .Include(o => o.OpportunitySkills)
+                                                .ThenInclude(os => os.Skill)
+                                            .FirstOrDefaultAsync(o => o.OpportunityId == id);
+            return MapToOpportunityResponseDto(opportunity);
         }
 
         public async Task<Opportunity?> AddOpportunityAsync(OpportunityCreateDto opportunityDto)
@@ -71,11 +115,11 @@ namespace HanoConnect.API.Services
             var opportunity = new Opportunity
             {
                 OrganizationId = opportunityDto.OrganizationId,
-                Organization = organization, // Gán đối tượng Organization
+                // Không cần gán Organization object trực tiếp ở đây, EF Core sẽ tự xử lý qua Id
                 Title = opportunityDto.Title,
                 Description = opportunityDto.Description,
                 CauseId = opportunityDto.CauseId,
-                Cause = cause, // Gán đối tượng Cause
+                // Không cần gán Cause object trực tiếp ở đây
                 Location = opportunityDto.Location,
                 StartDate = opportunityDto.StartDate,
                 EndDate = opportunityDto.EndDate,
@@ -96,9 +140,10 @@ namespace HanoConnect.API.Services
                 var skill = await _skillRepository.GetByIdAsync(skillId);
                 if (skill == null)
                 {
+                    // Nếu một SkillId không tồn tại, có thể trả về null hoặc ném ngoại lệ tùy logic nghiệp vụ
                     return null;
                 }
-                opportunity.OpportunitySkills.Add(new OpportunitySkill { SkillId = skillId, Opportunity = opportunity });
+                opportunity.OpportunitySkills.Add(new OpportunitySkill { SkillId = skillId }); // Không cần gán Opportunity object ở đây
             }
 
             await _opportunityRepository.AddAsync(opportunity);
@@ -115,8 +160,8 @@ namespace HanoConnect.API.Services
             }
 
             var existingOpportunity = await _context.Opportunities
-                                                   .Include(o => o.OpportunitySkills)
-                                                   .FirstOrDefaultAsync(o => o.OpportunityId == id);
+                                                    .Include(o => o.OpportunitySkills)
+                                                    .FirstOrDefaultAsync(o => o.OpportunityId == id);
 
             if (existingOpportunity == null)
             {
@@ -182,14 +227,17 @@ namespace HanoConnect.API.Services
         public async Task<bool> DeleteOpportunityAsync(int id)
         {
             var opportunityToDelete = await _context.Opportunities
-                                                     .Include(o => o.OpportunitySkills)
-                                                     .FirstOrDefaultAsync(o => o.OpportunityId == id);
+                                                    .Include(o => o.OpportunitySkills)
+                                                    .FirstOrDefaultAsync(o => o.OpportunityId == id);
             if (opportunityToDelete == null)
             {
                 return false;
             }
 
-            if (opportunityToDelete.OpportunitySkills != null && opportunityToDelete.OpportunitySkills.Count > 0) // Thay thế .Any() bằng .Count > 0
+            if (opportunityToDelete.OpportunitySkills == null || opportunityToDelete.OpportunitySkills.Count <= 0)
+            {
+            }
+            else
             {
                 _context.OpportunitySkills.RemoveRange(opportunityToDelete.OpportunitySkills);
             }
@@ -198,29 +246,31 @@ namespace HanoConnect.API.Services
             return await _opportunityRepository.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Opportunity>> GetOpportunitiesByOrganizationIdAsync(int organizationId)
+        public async Task<IEnumerable<OpportunityResponseDto>> GetOpportunitiesByOrganizationIdAsync(int organizationId)
         {
-            return await _context.Opportunities
-                                 .Include(o => o.Organization)
-                                 .Include(o => o.Cause)
-                                 .Include(o => o.OpportunitySkills)
-                                     .ThenInclude(os => os.Skill)
-                                 .Where(o => o.OrganizationId == organizationId)
-                                 .ToListAsync();
+            var opportunities = await _context.Opportunities
+                                            .Include(o => o.Organization)
+                                            .Include(o => o.Cause)
+                                            .Include(o => o.OpportunitySkills)
+                                                .ThenInclude(os => os.Skill)
+                                            .Where(o => o.OrganizationId == organizationId)
+                                            .ToListAsync();
+            return opportunities.Select(o => MapToOpportunityResponseDto(o)).Where(dto => dto != null)!;
         }
 
-        public async Task<IEnumerable<Opportunity>> GetOpportunitiesByCauseIdAsync(int causeId)
+        public async Task<IEnumerable<OpportunityResponseDto>> GetOpportunitiesByCauseIdAsync(int causeId)
         {
-            return await _context.Opportunities
-                                 .Include(o => o.Organization)
-                                 .Include(o => o.Cause)
-                                 .Include(o => o.OpportunitySkills)
-                                     .ThenInclude(os => os.Skill)
-                                 .Where(o => o.CauseId == causeId)
-                                 .ToListAsync();
+            var opportunities = await _context.Opportunities
+                                            .Include(o => o.Organization)
+                                            .Include(o => o.Cause)
+                                            .Include(o => o.OpportunitySkills)
+                                                .ThenInclude(os => os.Skill)
+                                            .Where(o => o.CauseId == causeId)
+                                            .ToListAsync();
+            return opportunities.Select(o => MapToOpportunityResponseDto(o)).Where(dto => dto != null)!;
         }
 
-        public async Task<IEnumerable<Opportunity>> SearchOpportunitiesAsync(
+        public async Task<IEnumerable<OpportunityResponseDto>> SearchOpportunitiesAsync(
             string? keyword,
             int? causeId,
             int? organizationId,
@@ -229,16 +279,20 @@ namespace HanoConnect.API.Services
             DateTime? endDate)
         {
             var query = _context.Opportunities
-                                .Include(o => o.Organization)
-                                .Include(o => o.Cause)
-                                .Include(o => o.OpportunitySkills)
-                                    .ThenInclude(os => os.Skill)
-                                .AsQueryable();
+                                 .Include(o => o.Organization)
+                                 .Include(o => o.Cause)
+                                 .Include(o => o.OpportunitySkills)
+                                     .ThenInclude(os => os.Skill)
+                                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                // Đảm bảo o.Description không null trước khi gọi Contains
-                query = query.Where(o => o.Title.Contains(keyword) || (o.Description != null && o.Description.Contains(keyword)));
+                query = query.Where(o =>
+                    o.Title.Contains(keyword) ||
+                    (o.Description != null && o.Description.Contains(keyword)) ||
+                    (o.Location != null && o.Location.Contains(keyword)) ||
+                    (o.Organization != null && o.Organization.OrganizationName.Contains(keyword)) || // ĐÃ SỬA: Thêm kiểm tra null
+                    (o.Cause != null && o.Cause.CauseName.Contains(keyword))); // ĐÃ SỬA: Thêm kiểm tra null
             }
 
             if (causeId.HasValue)
@@ -266,7 +320,8 @@ namespace HanoConnect.API.Services
                 query = query.Where(o => o.EndDate <= endDate.Value);
             }
 
-            return await query.ToListAsync();
+            var opportunities = await query.ToListAsync();
+            return opportunities.Select(o => MapToOpportunityResponseDto(o)).Where(dto => dto != null)!;
         }
     }
 }

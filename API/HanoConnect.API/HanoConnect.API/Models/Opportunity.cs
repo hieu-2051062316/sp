@@ -17,16 +17,15 @@ namespace HanoConnect.API.Models
 
         [Required]
         [MaxLength(255)]
-        public required string Title { get; set; } // <--- ĐÃ SỬA: Thêm từ khóa 'required' ở đây
+        public required string Title { get; set; }
 
-        // [Required] // <--- Giữ nguyên khuyến nghị: Xóa [Required] nếu Description có thể null trong DB
-        [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string? Description { get; set; } // Đã thêm '?'
+        [Column(TypeName = "NVARCHAR(MAX)")]
+        public string? Description { get; set; }
 
         public int CauseId { get; set; }
 
         [MaxLength(255)]
-        public string? Location { get; set; } // Đã thêm '?'
+        public string? Location { get; set; }
 
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -35,13 +34,13 @@ namespace HanoConnect.API.Models
 
         public int? RequiredVolunteers { get; set; }
 
-        [Column(TypeName = "NVARCHAR(MAX)")] // NVARCHAR(MAX)
-        public string? Benefits { get; set; } // Đã thêm '?'
+        [Column(TypeName = "NVARCHAR(MAX)")]
+        public string? Benefits { get; set; }
 
         [MaxLength(255)]
-        public string? ContactInfo { get; set; } // Đã thêm '?'
+        public string? ContactInfo { get; set; }
 
-        [Column(TypeName = "Date")] // DATE type
+        [Column(TypeName = "Date")]
         public DateTime? ApplicationDeadline { get; set; }
 
         [MaxLength(50)]
@@ -54,12 +53,11 @@ namespace HanoConnect.API.Models
 
         // Navigation properties
         [ForeignKey("OrganizationId")]
-        public required Organization Organization { get; set; } // Đã thêm 'required'
+        public Organization? Organization { get; set; } // ĐÃ SỬA: Bỏ 'required', thêm '?' để cho phép null
 
         [ForeignKey("CauseId")]
-        public required Cause Cause { get; set; } // Đã thêm 'required'
+        public Cause? Cause { get; set; } // ĐÃ SỬA: Bỏ 'required', thêm '?' để cho phép null
 
-        // Khắc phục: Khởi tạo các collection
         public ICollection<OpportunitySkill> OpportunitySkills { get; set; } = new List<OpportunitySkill>();
         public ICollection<Application> Applications { get; set; } = new List<Application>();
     }

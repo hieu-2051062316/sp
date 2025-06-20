@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System; // Thêm dòng này nếu chưa có để dùng DateTime
 
 namespace HanoConnect.API.Repositories
 {
@@ -19,7 +20,7 @@ namespace HanoConnect.API.Repositories
             return await _dbSet
                 .Where(o => o.OrganizationId == organizationId)
                 .Include(o => o.Organization) // Tải thông tin tổ chức
-                .Include(o => o.Cause)        // Tải thông tin mục đích
+                .Include(o => o.Cause)       // Tải thông tin mục đích
                 .ToListAsync();
         }
 
@@ -52,8 +53,9 @@ namespace HanoConnect.API.Repositories
                     o.Title.Contains(keyword) ||
                     (o.Description != null && o.Description.Contains(keyword)) ||
                     (o.Location != null && o.Location.Contains(keyword)) ||
-                    o.Organization.OrganizationName.Contains(keyword) ||
-                    o.Cause.CauseName.Contains(keyword));
+                    // ĐÃ SỬA: Thêm kiểm tra null cho Organization và Cause
+                    (o.Organization != null && o.Organization.OrganizationName.Contains(keyword)) ||
+                    (o.Cause != null && o.Cause.CauseName.Contains(keyword)));
             }
 
             if (causeId.HasValue && causeId.Value > 0)

@@ -1,6 +1,6 @@
 ﻿using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
-using HanoConnect.API.DTOs;
+using HanoConnect.API.DTOs; // Thêm dòng này
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace HanoConnect.API.Controllers
 
         // GET: api/Opportunity
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Opportunity>>> GetAllOpportunities()
+        public async Task<ActionResult<IEnumerable<OpportunityResponseDto>>> GetAllOpportunities() // Thay đổi kiểu trả về
         {
             var opportunities = await _opportunityService.GetAllOpportunitiesAsync();
             return Ok(opportunities);
@@ -29,7 +29,7 @@ namespace HanoConnect.API.Controllers
 
         // GET: api/Opportunity/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Opportunity>> GetOpportunityById(int id)
+        public async Task<ActionResult<OpportunityResponseDto>> GetOpportunityById(int id) // Thay đổi kiểu trả về
         {
             var opportunity = await _opportunityService.GetOpportunityByIdAsync(id);
             if (opportunity == null)
@@ -41,7 +41,7 @@ namespace HanoConnect.API.Controllers
 
         // POST: api/Opportunity
         [HttpPost]
-        public async Task<ActionResult<Opportunity>> AddOpportunity([FromBody] OpportunityCreateDto opportunityDto)
+        public async Task<ActionResult<OpportunityResponseDto>> AddOpportunity([FromBody] OpportunityCreateDto opportunityDto) // Thay đổi kiểu trả về
         {
             if (!ModelState.IsValid)
             {
@@ -53,7 +53,11 @@ namespace HanoConnect.API.Controllers
             {
                 return BadRequest("Failed to create opportunity. Please check provided OrganizationId, CauseId, or SkillIds.");
             }
-            return CreatedAtAction(nameof(GetOpportunityById), new { id = newOpportunity.OpportunityId }, newOpportunity);
+
+            // Sau khi tạo thành công, lấy lại Opportunity với đầy đủ chi tiết để trả về DTO
+            var createdOpportunityDto = await _opportunityService.GetOpportunityByIdAsync(newOpportunity.OpportunityId);
+
+            return CreatedAtAction(nameof(GetOpportunityById), new { id = newOpportunity.OpportunityId }, createdOpportunityDto); // Trả về DTO
         }
 
         // PUT: api/Opportunity/{id}
@@ -92,7 +96,7 @@ namespace HanoConnect.API.Controllers
 
         // GET: api/Opportunity/by-organization/{organizationId}
         [HttpGet("by-organization/{organizationId}")]
-        public async Task<ActionResult<IEnumerable<Opportunity>>> GetOpportunitiesByOrganizationId(int organizationId)
+        public async Task<ActionResult<IEnumerable<OpportunityResponseDto>>> GetOpportunitiesByOrganizationId(int organizationId) // Thay đổi kiểu trả về
         {
             var opportunities = await _opportunityService.GetOpportunitiesByOrganizationIdAsync(organizationId);
             return Ok(opportunities);
@@ -100,7 +104,7 @@ namespace HanoConnect.API.Controllers
 
         // GET: api/Opportunity/by-cause/{causeId}
         [HttpGet("by-cause/{causeId}")]
-        public async Task<ActionResult<IEnumerable<Opportunity>>> GetOpportunitiesByCauseId(int causeId)
+        public async Task<ActionResult<IEnumerable<OpportunityResponseDto>>> GetOpportunitiesByCauseId(int causeId) // Thay đổi kiểu trả về
         {
             var opportunities = await _opportunityService.GetOpportunitiesByCauseIdAsync(causeId);
             return Ok(opportunities);
@@ -108,7 +112,7 @@ namespace HanoConnect.API.Controllers
 
         // GET: api/Opportunity/search
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Opportunity>>> SearchOpportunities(
+        public async Task<ActionResult<IEnumerable<OpportunityResponseDto>>> SearchOpportunities( // Thay đổi kiểu trả về
             [FromQuery] string? keyword,
             [FromQuery] int? causeId,
             [FromQuery] int? organizationId,

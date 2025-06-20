@@ -1,6 +1,8 @@
 ﻿using HanoConnect.API.Data;
 using HanoConnect.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HanoConnect.API.Repositories
 {
@@ -36,7 +38,7 @@ namespace HanoConnect.API.Repositories
             _context.Entry(entity).State = EntityState.Modified;
         }
 
-        public void Delete(T entity)
+        public void Delete(T entity) // Phương thức Delete đã tồn tại và sẽ được sử dụng
         {
             _dbSet.Remove(entity);
         }

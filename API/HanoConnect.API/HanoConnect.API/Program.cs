@@ -28,6 +28,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ICauseRepository, CauseRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddScoped<IOpportunityRepository, OpportunityRepository>();
 
 // Register Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -35,6 +36,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ICauseService, CauseService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<IOpportunityService, OpportunityService>();
 
 // --- Kết thúc phần thêm code của bạn ---
 

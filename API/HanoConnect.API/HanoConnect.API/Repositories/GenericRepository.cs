@@ -17,7 +17,8 @@ namespace HanoConnect.API.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        // THÊM 'virtual' VÀO ĐÂY
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
@@ -38,7 +39,7 @@ namespace HanoConnect.API.Repositories
             _context.Entry(entity).State = EntityState.Modified;
         }
 
-        public void Delete(T entity) // Phương thức Delete đã tồn tại và sẽ được sử dụng
+        public void Delete(T entity)
         {
             _dbSet.Remove(entity);
         }

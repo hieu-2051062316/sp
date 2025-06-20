@@ -1,23 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HanoConnect.API.Models
 {
     [Table("OpportunitySkills")]
     public class OpportunitySkill
     {
-        [Key] // Primary key for this junction table
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-incrementing identity column
-        public int OpportunitySkillId { get; set; } // SQL Server uses identity column for PK
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int OpportunitySkillId { get; set; }
 
         public int OpportunityId { get; set; }
         public int SkillId { get; set; }
 
         // Navigation properties
+        [JsonIgnore]
         [ForeignKey("OpportunityId")]
-        public required Opportunity Opportunity { get; set; } // Added 'required'
+        public Opportunity? Opportunity { get; set; } // THÊM '?'
 
+        [JsonIgnore]
         [ForeignKey("SkillId")]
-        public required Skill Skill { get; set; } // Added 'required'
+        public Skill? Skill { get; set; } // THÊM '?'
     }
 }

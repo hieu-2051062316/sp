@@ -1,6 +1,6 @@
 ﻿using HanoConnect.API.Data;
-using HanoConnect.API.Interfaces; // Thêm dòng này để sử dụng IGenericRepository
-using HanoConnect.API.Repositories; // Thêm dòng này để sử dụng GenericRepository
+using HanoConnect.API.Interfaces;
+using HanoConnect.API.Repositories;
 using HanoConnect.API.Services;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,5 +1,6 @@
 ﻿using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
+using HanoConnect.API.Data; // THÊM DÒNG NÀY
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,17 +14,20 @@ namespace HanoConnect.API.Services
         private readonly IOrganizationRepository _organizationRepository; // Để kiểm tra OrganizationId
         private readonly ICauseRepository _causeRepository;             // Để kiểm tra CauseId
         private readonly ISkillRepository _skillRepository;             // Để kiểm tra SkillIds và quản lý OpportunitySkills
+        private readonly ApplicationDbContext _context;                 // THÊM DÒNG NÀY
 
         public OpportunityService(
             IOpportunityRepository opportunityRepository,
             IOrganizationRepository organizationRepository,
             ICauseRepository causeRepository,
-            ISkillRepository skillRepository)
+            ISkillRepository skillRepository,
+            ApplicationDbContext context) // THÊM THAM SỐ NÀY
         {
             _opportunityRepository = opportunityRepository;
             _organizationRepository = organizationRepository;
             _causeRepository = causeRepository;
             _skillRepository = skillRepository;
+            _context = context; // GÁN CONTEXT
         }
 
         public async Task<IEnumerable<Opportunity>> GetAllOpportunitiesAsync()
@@ -137,8 +141,8 @@ namespace HanoConnect.API.Services
                     var osToRemove = existingOpportunity.OpportunitySkills.FirstOrDefault(os => os.SkillId == skillId);
                     if (osToRemove != null)
                     {
-                        // Đã thay đổi thành _opportunityRepository.Delete(osToRemove);
-                        _opportunityRepository.Delete(osToRemove);
+                        // SỬA DÒNG NÀY: Dùng _context để xóa OpportunitySkill
+                        _context.OpportunitySkills.Remove(osToRemove);
                     }
                 }
             }

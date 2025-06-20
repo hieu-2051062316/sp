@@ -3,12 +3,19 @@ using HanoConnect.API.Interfaces;
 using HanoConnect.API.Repositories;
 using HanoConnect.API.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization; // Thêm dòng này
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+// Bắt đầu phần chỉnh sửa
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+// Kết thúc phần chỉnh sửa
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

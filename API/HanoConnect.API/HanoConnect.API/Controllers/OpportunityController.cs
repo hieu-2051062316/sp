@@ -1,6 +1,6 @@
 ﻿using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
-using HanoConnect.API.DTOs; //
+using HanoConnect.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +51,7 @@ namespace HanoConnect.API.Controllers
             var newOpportunity = await _opportunityService.AddOpportunityAsync(opportunityDto);
             if (newOpportunity == null)
             {
-                return BadRequest("Failed to create opportunity. Check OrganizationId, CauseId, or SkillIds.");
+                return BadRequest("Failed to create opportunity. Please check provided OrganizationId, CauseId, or SkillIds.");
             }
             return CreatedAtAction(nameof(GetOpportunityById), new { id = newOpportunity.OpportunityId }, newOpportunity);
         }
@@ -62,7 +62,7 @@ namespace HanoConnect.API.Controllers
         {
             if (id != opportunityDto.OpportunityId)
             {
-                return BadRequest("Opportunity ID mismatch.");
+                return BadRequest("Opportunity ID in URL does not match ID in body.");
             }
 
             if (!ModelState.IsValid)

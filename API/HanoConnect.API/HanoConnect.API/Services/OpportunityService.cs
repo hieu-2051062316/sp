@@ -1,139 +1,168 @@
 ﻿using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
-using HanoConnect.API.Data; // THÊM DÒNG NÀY
+using HanoConnect.API.Data;
+using HanoConnect.API.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HanoConnect.API.Services
 {
     public class OpportunityService : IOpportunityService
     {
         private readonly IOpportunityRepository _opportunityRepository;
-        private readonly IOrganizationRepository _organizationRepository; // Để kiểm tra OrganizationId
-        private readonly ICauseRepository _causeRepository;             // Để kiểm tra CauseId
-        private readonly ISkillRepository _skillRepository;             // Để kiểm tra SkillIds và quản lý OpportunitySkills
-        private readonly ApplicationDbContext _context;                 // THÊM DÒNG NÀY
+        private readonly IOrganizationRepository _organizationRepository;
+        private readonly ICauseRepository _causeRepository;
+        private readonly ISkillRepository _skillRepository;
+        private readonly ApplicationDbContext _context;
 
         public OpportunityService(
             IOpportunityRepository opportunityRepository,
             IOrganizationRepository organizationRepository,
             ICauseRepository causeRepository,
             ISkillRepository skillRepository,
-            ApplicationDbContext context) // THÊM THAM SỐ NÀY
+            ApplicationDbContext context)
         {
             _opportunityRepository = opportunityRepository;
             _organizationRepository = organizationRepository;
             _causeRepository = causeRepository;
             _skillRepository = skillRepository;
-            _context = context; // GÁN CONTEXT
+            _context = context;
         }
 
         public async Task<IEnumerable<Opportunity>> GetAllOpportunitiesAsync()
         {
-            return await _opportunityRepository.GetAllAsync();
+            return await _context.Opportunities
+                                 .Include(o => o.Organization)
+                                 .Include(o => o.Cause)
+                                 .Include(o => o.OpportunitySkills)
+                                     .ThenInclude(os => os.Skill)
+                                 .ToListAsync();
         }
 
         public async Task<Opportunity?> GetOpportunityByIdAsync(int id)
         {
-            return await _opportunityRepository.GetOpportunityWithDetailsAsync(id);
+            return await _context.Opportunities
+                                 .Include(o => o.Organization)
+                                 .Include(o => o.Cause)
+                                 .Include(o => o.OpportunitySkills)
+                                     .ThenInclude(os => os.Skill)
+                                 .FirstOrDefaultAsync(o => o.OpportunityId == id);
         }
 
-        public async Task<Opportunity?> AddOpportunityAsync(Opportunity opportunity, List<int> skillIds)
+        public async Task<Opportunity?> AddOpportunityAsync(OpportunityCreateDto opportunityDto)
         {
-            // Kiểm tra OrganizationId tồn tại
-            var organizationExists = await _organizationRepository.GetByIdAsync(opportunity.OrganizationId);
-            if (organizationExists == null)
-            {
-                return null; // Hoặc throw exception tùy vào cách xử lý lỗi của bạn
-            }
-
-            // Kiểm tra CauseId tồn tại
-            var causeExists = await _causeRepository.GetByIdAsync(opportunity.CauseId);
-            if (causeExists == null)
+            // Kiểm tra OrganizationId tồn tại và lấy đối tượng Organization
+            var organization = await _organizationRepository.GetByIdAsync(opportunityDto.OrganizationId);
+            if (organization == null)
             {
                 return null;
             }
 
-            // Khởi tạo OpportunitySkills nếu nó null
-            opportunity.OpportunitySkills ??= new List<OpportunitySkill>();
+            // Kiểm tra CauseId tồn tại và lấy đối tượng Cause
+            var cause = await _causeRepository.GetByIdAsync(opportunityDto.CauseId);
+            if (cause == null)
+            {
+                return null;
+            }
 
-            // Thêm các kỹ năng được yêu cầu
-            foreach (var skillId in skillIds)
+            var opportunity = new Opportunity
+            {
+                OrganizationId = opportunityDto.OrganizationId,
+                Organization = organization, // Gán đối tượng Organization
+                Title = opportunityDto.Title,
+                Description = opportunityDto.Description,
+                CauseId = opportunityDto.CauseId,
+                Cause = cause, // Gán đối tượng Cause
+                Location = opportunityDto.Location,
+                StartDate = opportunityDto.StartDate,
+                EndDate = opportunityDto.EndDate,
+                IsFlexibleTime = opportunityDto.IsFlexibleTime,
+                RequiredVolunteers = opportunityDto.RequiredVolunteers,
+                Benefits = opportunityDto.Benefits,
+                ContactInfo = opportunityDto.ContactInfo,
+                ApplicationDeadline = opportunityDto.ApplicationDeadline,
+                Status = opportunityDto.Status,
+                IsApprovedByAdmin = opportunityDto.IsApprovedByAdmin,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                OpportunitySkills = new List<OpportunitySkill>()
+            };
+
+            foreach (var skillId in opportunityDto.SkillIds)
             {
                 var skill = await _skillRepository.GetByIdAsync(skillId);
                 if (skill == null)
                 {
-                    // Nếu có kỹ năng không tồn tại, bạn có thể xử lý lỗi hoặc bỏ qua
-                    // Hiện tại sẽ trả về null để báo lỗi
                     return null;
                 }
                 opportunity.OpportunitySkills.Add(new OpportunitySkill { SkillId = skillId, Opportunity = opportunity });
             }
 
-            opportunity.CreatedAt = DateTime.UtcNow;
-            opportunity.UpdatedAt = DateTime.UtcNow;
-
             await _opportunityRepository.AddAsync(opportunity);
             await _opportunityRepository.SaveChangesAsync();
+
             return opportunity;
         }
 
-        public async Task<bool> UpdateOpportunityAsync(Opportunity opportunity, List<int> skillIds)
+        public async Task<bool> UpdateOpportunityAsync(int id, OpportunityUpdateDto opportunityDto)
         {
-            var existingOpportunity = await _opportunityRepository.GetOpportunityWithDetailsAsync(opportunity.OpportunityId);
+            if (id != opportunityDto.OpportunityId)
+            {
+                return false;
+            }
+
+            var existingOpportunity = await _context.Opportunities
+                                                   .Include(o => o.OpportunitySkills)
+                                                   .FirstOrDefaultAsync(o => o.OpportunityId == id);
+
             if (existingOpportunity == null)
             {
                 return false;
             }
 
-            // Kiểm tra OrganizationId tồn tại (nếu thay đổi)
-            if (existingOpportunity.OrganizationId != opportunity.OrganizationId)
+            // Kiểm tra OrganizationId và CauseId tồn tại nếu chúng thay đổi
+            if (existingOpportunity.OrganizationId != opportunityDto.OrganizationId)
             {
-                var organizationExists = await _organizationRepository.GetByIdAsync(opportunity.OrganizationId);
+                var organizationExists = await _organizationRepository.GetByIdAsync(opportunityDto.OrganizationId);
                 if (organizationExists == null) return false;
             }
 
-            // Kiểm tra CauseId tồn tại (nếu thay đổi)
-            if (existingOpportunity.CauseId != opportunity.CauseId)
+            if (existingOpportunity.CauseId != opportunityDto.CauseId)
             {
-                var causeExists = await _causeRepository.GetByIdAsync(opportunity.CauseId);
+                var causeExists = await _causeRepository.GetByIdAsync(opportunityDto.CauseId);
                 if (causeExists == null) return false;
             }
 
-            // Cập nhật các thuộc tính cơ bản
-            existingOpportunity.OrganizationId = opportunity.OrganizationId;
-            existingOpportunity.CauseId = opportunity.CauseId;
-            existingOpportunity.Title = opportunity.Title;
-            existingOpportunity.Description = opportunity.Description;
-            existingOpportunity.Location = opportunity.Location;
-            existingOpportunity.StartDate = opportunity.StartDate;
-            existingOpportunity.EndDate = opportunity.EndDate;
-            existingOpportunity.IsFlexibleTime = opportunity.IsFlexibleTime;
-            existingOpportunity.RequiredVolunteers = opportunity.RequiredVolunteers;
-            existingOpportunity.Benefits = opportunity.Benefits;
-            existingOpportunity.ContactInfo = opportunity.ContactInfo;
-            existingOpportunity.ApplicationDeadline = opportunity.ApplicationDeadline;
-            existingOpportunity.Status = opportunity.Status;
-            existingOpportunity.IsApprovedByAdmin = opportunity.IsApprovedByAdmin;
+            existingOpportunity.OrganizationId = opportunityDto.OrganizationId;
+            existingOpportunity.Title = opportunityDto.Title;
+            existingOpportunity.Description = opportunityDto.Description;
+            existingOpportunity.CauseId = opportunityDto.CauseId;
+            existingOpportunity.Location = opportunityDto.Location;
+            existingOpportunity.StartDate = opportunityDto.StartDate;
+            existingOpportunity.EndDate = opportunityDto.EndDate;
+            existingOpportunity.IsFlexibleTime = opportunityDto.IsFlexibleTime;
+            existingOpportunity.RequiredVolunteers = opportunityDto.RequiredVolunteers;
+            existingOpportunity.Benefits = opportunityDto.Benefits;
+            existingOpportunity.ContactInfo = opportunityDto.ContactInfo;
+            existingOpportunity.ApplicationDeadline = opportunityDto.ApplicationDeadline;
+            existingOpportunity.Status = opportunityDto.Status;
+            existingOpportunity.IsApprovedByAdmin = opportunityDto.IsApprovedByAdmin;
             existingOpportunity.UpdatedAt = DateTime.UtcNow;
 
-            // Cập nhật kỹ năng liên quan (OpportunitySkill)
-            // Lấy các kỹ năng hiện có
-            var existingSkillIds = existingOpportunity.OpportunitySkills?.Select(os => os.SkillId).ToList() ?? new List<int>();
+            var currentSkillIds = existingOpportunity.OpportunitySkills?.Select(os => os.SkillId).ToList() ?? new List<int>();
 
-            // Kỹ năng cần thêm
-            var skillsToAdd = skillIds.Except(existingSkillIds).ToList();
+            var skillsToAdd = opportunityDto.SkillIds.Except(currentSkillIds).ToList();
             foreach (var skillId in skillsToAdd)
             {
                 var skill = await _skillRepository.GetByIdAsync(skillId);
-                if (skill == null) return false; // Kỹ năng không tồn tại
+                if (skill == null) return false;
                 existingOpportunity.OpportunitySkills?.Add(new OpportunitySkill { OpportunityId = existingOpportunity.OpportunityId, SkillId = skillId });
             }
 
-            // Kỹ năng cần xóa
-            var skillsToRemove = existingSkillIds.Except(skillIds).ToList();
+            var skillsToRemove = currentSkillIds.Except(opportunityDto.SkillIds).ToList();
             if (existingOpportunity.OpportunitySkills != null)
             {
                 foreach (var skillId in skillsToRemove)
@@ -141,35 +170,54 @@ namespace HanoConnect.API.Services
                     var osToRemove = existingOpportunity.OpportunitySkills.FirstOrDefault(os => os.SkillId == skillId);
                     if (osToRemove != null)
                     {
-                        // SỬA DÒNG NÀY: Dùng _context để xóa OpportunitySkill
                         _context.OpportunitySkills.Remove(osToRemove);
                     }
                 }
             }
 
-            _opportunityRepository.Update(existingOpportunity); // Update opportunity itself
+            _opportunityRepository.Update(existingOpportunity);
             return await _opportunityRepository.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteOpportunityAsync(int id)
         {
-            var opportunityToDelete = await _opportunityRepository.GetByIdAsync(id);
+            var opportunityToDelete = await _context.Opportunities
+                                                     .Include(o => o.OpportunitySkills)
+                                                     .FirstOrDefaultAsync(o => o.OpportunityId == id);
             if (opportunityToDelete == null)
             {
                 return false;
             }
+
+            if (opportunityToDelete.OpportunitySkills != null && opportunityToDelete.OpportunitySkills.Count > 0) // Thay thế .Any() bằng .Count > 0
+            {
+                _context.OpportunitySkills.RemoveRange(opportunityToDelete.OpportunitySkills);
+            }
+
             _opportunityRepository.Delete(opportunityToDelete);
             return await _opportunityRepository.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<Opportunity>> GetOpportunitiesByOrganizationIdAsync(int organizationId)
         {
-            return await _opportunityRepository.GetOpportunitiesByOrganizationIdAsync(organizationId);
+            return await _context.Opportunities
+                                 .Include(o => o.Organization)
+                                 .Include(o => o.Cause)
+                                 .Include(o => o.OpportunitySkills)
+                                     .ThenInclude(os => os.Skill)
+                                 .Where(o => o.OrganizationId == organizationId)
+                                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Opportunity>> GetOpportunitiesByCauseIdAsync(int causeId)
         {
-            return await _opportunityRepository.GetOpportunitiesByCauseIdAsync(causeId);
+            return await _context.Opportunities
+                                 .Include(o => o.Organization)
+                                 .Include(o => o.Cause)
+                                 .Include(o => o.OpportunitySkills)
+                                     .ThenInclude(os => os.Skill)
+                                 .Where(o => o.CauseId == causeId)
+                                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Opportunity>> SearchOpportunitiesAsync(
@@ -180,7 +228,45 @@ namespace HanoConnect.API.Services
             DateTime? startDate,
             DateTime? endDate)
         {
-            return await _opportunityRepository.SearchOpportunitiesAsync(keyword, causeId, organizationId, location, startDate, endDate);
+            var query = _context.Opportunities
+                                .Include(o => o.Organization)
+                                .Include(o => o.Cause)
+                                .Include(o => o.OpportunitySkills)
+                                    .ThenInclude(os => os.Skill)
+                                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                // Đảm bảo o.Description không null trước khi gọi Contains
+                query = query.Where(o => o.Title.Contains(keyword) || (o.Description != null && o.Description.Contains(keyword)));
+            }
+
+            if (causeId.HasValue)
+            {
+                query = query.Where(o => o.CauseId == causeId.Value);
+            }
+
+            if (organizationId.HasValue)
+            {
+                query = query.Where(o => o.OrganizationId == organizationId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                query = query.Where(o => o.Location != null && o.Location.Contains(location));
+            }
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(o => o.StartDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(o => o.EndDate <= endDate.Value);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

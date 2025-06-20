@@ -1,6 +1,8 @@
 ﻿using HanoConnect.API.Models;
+using HanoConnect.API.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace HanoConnect.API.Interfaces
 {
@@ -8,8 +10,8 @@ namespace HanoConnect.API.Interfaces
     {
         Task<IEnumerable<Opportunity>> GetAllOpportunitiesAsync();
         Task<Opportunity?> GetOpportunityByIdAsync(int id);
-        Task<Opportunity?> AddOpportunityAsync(Opportunity opportunity, List<int> skillIds); // Thêm skillIds
-        Task<bool> UpdateOpportunityAsync(Opportunity opportunity, List<int> skillIds); // Cập nhật skillIds
+        Task<Opportunity?> AddOpportunityAsync(OpportunityCreateDto opportunityDto);
+        Task<bool> UpdateOpportunityAsync(int id, OpportunityUpdateDto opportunityDto);
         Task<bool> DeleteOpportunityAsync(int id);
         Task<IEnumerable<Opportunity>> GetOpportunitiesByOrganizationIdAsync(int organizationId);
         Task<IEnumerable<Opportunity>> GetOpportunitiesByCauseIdAsync(int causeId);

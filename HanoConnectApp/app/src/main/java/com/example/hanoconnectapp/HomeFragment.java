@@ -6,20 +6,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import com.example.hanoconnectapp.adapters.OpportunityAdapter;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
-import com.example.hanoconnectapp.networking.ApiService;
-import com.example.hanoconnectapp.networking.RetrofitClient;
 import java.util.ArrayList;
 import java.util.List;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
@@ -35,7 +29,6 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -47,7 +40,7 @@ public class HomeFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
 
         setupRecyclerView();
-        fetchOpportunities();
+        loadDummyData(); // <--- THAY ĐỔI QUAN TRỌNG: Gọi hàm tải dữ liệu giả
     }
 
     private void setupRecyclerView() {
@@ -56,6 +49,35 @@ public class HomeFragment extends Fragment {
         rvOpportunities.setAdapter(opportunityAdapter);
     }
 
+    // HÀM MỚI: TẠO VÀ HIỂN THỊ DỮ LIỆU GIẢ
+    private void loadDummyData() {
+        progressBar.setVisibility(View.GONE); // Ẩn progress bar
+        rvOpportunities.setVisibility(View.VISIBLE); // Hiện RecyclerView
+
+        opportunityList.clear(); // Xóa dữ liệu cũ nếu có
+
+        // Tạo một vài cơ hội giả
+        opportunityList.add(new OpportunityResponseDto(
+                "Giới thiệu chiến dịch tình nguyện Hà Nội của tôi:",
+                "Hà Nội Của Tôi",
+                "Chiến dịch tình nguyện Hà Nội của tôi là hành trình kết nối những trái tim nhiệt huyết vì cộng đồng..."
+        ));
+        opportunityList.add(new OpportunityResponseDto(
+                "Mùa Hè Xanh 2025 - Lên đường cống hiến!",
+                "Mùa Hè Xanh 2025",
+                "Những bước chân tình nguyện lại lên đường, mang theo nhiệt huyết tuổi trẻ đến với các vùng quê khó khăn..."
+        ));
+        opportunityList.add(new OpportunityResponseDto(
+                "Dạy học cho trẻ em vùng cao",
+                "Quỹ Ước Mơ",
+                "Chương trình mang kiến thức và niềm vui đến cho các em nhỏ tại các điểm trường khó khăn nhất."
+        ));
+
+        opportunityAdapter.notifyDataSetChanged(); // Báo cho Adapter cập nhật lại giao diện
+    }
+
+    /*
+    // HÀM GỌI API THẬT - TẠM THỜI ĐƯỢC CHÚ THÍCH (COMMENT OUT)
     private void fetchOpportunities() {
         progressBar.setVisibility(View.VISIBLE);
         rvOpportunities.setVisibility(View.GONE);
@@ -66,7 +88,7 @@ public class HomeFragment extends Fragment {
         call.enqueue(new Callback<List<OpportunityResponseDto>>() {
             @Override
             public void onResponse(Call<List<OpportunityResponseDto>> call, Response<List<OpportunityResponseDto>> response) {
-                if (isAdded()) { // Kiểm tra xem Fragment còn được gắn vào Activity không
+                if (isAdded()) {
                     progressBar.setVisibility(View.GONE);
                     rvOpportunities.setVisibility(View.VISIBLE);
 
@@ -74,9 +96,6 @@ public class HomeFragment extends Fragment {
                         opportunityList.clear();
                         opportunityList.addAll(response.body());
                         opportunityAdapter.notifyDataSetChanged();
-                        Log.d("API_SUCCESS", "Data loaded into HomeFragment's RecyclerView.");
-                    } else {
-                        Log.e("API_ERROR", "API call failed with code: " + response.code());
                     }
                 }
             }
@@ -85,9 +104,9 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<List<OpportunityResponseDto>> call, Throwable t) {
                 if (isAdded()) {
                     progressBar.setVisibility(View.GONE);
-                    Log.e("API_FAILURE", "API request failed.", t);
                 }
             }
         });
     }
+    */
 }

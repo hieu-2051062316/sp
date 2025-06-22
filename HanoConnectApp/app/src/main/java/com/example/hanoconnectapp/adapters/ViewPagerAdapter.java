@@ -10,6 +10,7 @@ import com.example.hanoconnectapp.fragments.FollowedFragment;
 import com.example.hanoconnectapp.fragments.NotificationFragment;
 import com.example.hanoconnectapp.fragments.ProfileFragment;
 
+
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {

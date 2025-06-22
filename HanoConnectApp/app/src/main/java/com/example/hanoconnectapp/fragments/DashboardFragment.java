@@ -1,14 +1,17 @@
 package com.example.hanoconnectapp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import com.example.hanoconnectapp.CreateCampaignActivity;
 import com.example.hanoconnectapp.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DashboardFragment extends Fragment {
 
@@ -30,12 +33,22 @@ public class DashboardFragment extends Fragment {
 
         tvNewApplications = view.findViewById(R.id.tvNewApplications);
         tvActiveCampaigns = view.findViewById(R.id.tvActiveCampaigns);
+        FloatingActionButton fabCreatePost = view.findViewById(R.id.fabCreatePost);
+
+        if (fabCreatePost != null) {
+            fabCreatePost.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    // Dòng code gây lỗi trước đây, giờ sẽ hoạt động vì đã có import
+                    Intent intent = new Intent(getActivity(), CreateCampaignActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
 
         loadDummyData();
     }
 
     private void loadDummyData() {
-        // Dữ liệu giả cho các thẻ thống kê
         if (tvNewApplications != null) {
             tvNewApplications.setText("123");
         }

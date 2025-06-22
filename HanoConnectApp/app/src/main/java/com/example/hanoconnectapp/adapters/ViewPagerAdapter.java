@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-// Tạm thời tạo các Fragment rỗng để code không báo lỗi
-import com.example.hanoconnectapp.BlankFragment;
+import com.example.hanoconnectapp.HomeFragment;
+import com.example.hanoconnectapp.fragments.FollowedFragment;
+import com.example.hanoconnectapp.fragments.NotificationFragment;
+import com.example.hanoconnectapp.fragments.ProfileFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
@@ -17,17 +19,16 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        // Chúng ta sẽ thay thế các Fragment này bằng các Fragment thật sau
         switch (position) {
             case 1:
-                return new BlankFragment(); // Followed Fragment
+                return new FollowedFragment();
             case 2:
-                return new BlankFragment(); // Notification Fragment
+                return new NotificationFragment();
             case 3:
-                return new BlankFragment(); // Profile Fragment
+                return new ProfileFragment();
             case 0:
             default:
-                return new BlankFragment(); // Home Fragment
+                return new HomeFragment();
         }
     }
 

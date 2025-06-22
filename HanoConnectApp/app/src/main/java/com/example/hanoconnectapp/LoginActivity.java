@@ -1,24 +1,20 @@
 package com.example.hanoconnectapp;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+// Xóa các import không cần thiết như ViewCompat, WindowInsetsCompat...
 
 public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+
+        // Chỉ cần dòng này để hiển thị giao diện
         setContentView(R.layout.activity_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // Toàn bộ đoạn code gây lỗi đã được xóa bỏ.
+        // Sau này chúng ta sẽ thêm code xử lý cho các nút bấm vào đây.
     }
 }

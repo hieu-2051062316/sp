@@ -17,34 +17,11 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="#006400"
-            app:tabMode="fixed"
+            app:tabBackground="@drawable/tab_background_selector"
+            app:tabGravity="center"
             app:tabIconTint="@color/bottom_nav_color_selector"
-            app:tabInlineLabel="false">
-
-            <!-- Các TabItem này chỉ để xem trước, sẽ bị ghi đè bởi code Java -->
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:icon="@drawable/ic_home_logo" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:icon="@drawable/ic_star" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:icon="@drawable/ic_notification" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:icon="@drawable/ic_person" />
-
-        </com.google.android.material.tabs.TabLayout>
+            app:tabIndicatorHeight="0dp"
+            app:tabMode="scrollable" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

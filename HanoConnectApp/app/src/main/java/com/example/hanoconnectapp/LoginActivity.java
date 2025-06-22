@@ -2,7 +2,6 @@ package com.example.hanoconnectapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Vui lòng nhập đầy đủ email và mật khẩu", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             performLogin(email, password);
         });
     }
@@ -54,23 +52,20 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-
                     LoginResponse loginResponse = response.body();
-                    // TODO: Lưu thông tin người dùng (role, userId,...) vào SharedPreferences
 
-                    // Chuyển sang MainActivity
+                    // Chuyển sang MainActivity và "gửi kèm" vai trò của người dùng
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("USER_ROLE", loginResponse.getRole()); // Dòng code quan trọng
                     startActivity(intent);
-                    finish(); // Đóng LoginActivity để người dùng không quay lại được
+                    finish();
                 } else {
-                    // Xử lý lỗi từ server (ví dụ: sai mật khẩu)
                     Toast.makeText(LoginActivity.this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                // Xử lý lỗi kết nối
                 Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

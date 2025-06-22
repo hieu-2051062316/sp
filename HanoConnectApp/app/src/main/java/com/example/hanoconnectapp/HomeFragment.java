@@ -44,7 +44,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        opportunityAdapter = new OpportunityAdapter(opportunityList);
+        // Cung cấp getContext() cho Adapter
+        opportunityAdapter = new OpportunityAdapter(getContext(), opportunityList);
         rvOpportunities.setLayoutManager(new LinearLayoutManager(getContext()));
         rvOpportunities.setAdapter(opportunityAdapter);
     }

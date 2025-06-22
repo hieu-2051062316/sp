@@ -1,5 +1,7 @@
 package com.example.hanoconnectapp.adapters;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,17 +9,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.example.hanoconnectapp.OpportunityDetailActivity;
 import com.example.hanoconnectapp.R;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
-
 import java.util.List;
 
 public class OpportunityAdapter extends RecyclerView.Adapter<OpportunityAdapter.OpportunityViewHolder> {
 
     private List<OpportunityResponseDto> opportunityList;
+    private Context context;
 
-    public OpportunityAdapter(List<OpportunityResponseDto> opportunityList) {
+    public OpportunityAdapter(Context context, List<OpportunityResponseDto> opportunityList) {
+        this.context = context;
         this.opportunityList = opportunityList;
     }
 
@@ -35,6 +38,13 @@ public class OpportunityAdapter extends RecyclerView.Adapter<OpportunityAdapter.
         holder.tvOrgName.setText(opportunity.getOrganizationName());
         holder.tvOpportunityTitle.setText(opportunity.getTitle());
         holder.tvOpportunityDescription.setText(opportunity.getDescription());
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, OpportunityDetailActivity.class);
+            // Gửi toàn bộ đối tượng opportunity đi
+            intent.putExtra("OPPORTUNITY_DETAIL", opportunity);
+            context.startActivity(intent);
+        });
     }
 
     @Override

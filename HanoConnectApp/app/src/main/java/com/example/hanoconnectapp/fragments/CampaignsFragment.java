@@ -1,66 +1,70 @@
 package com.example.hanoconnectapp.fragments;
 
 import android.os.Bundle;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.example.hanoconnectapp.R;
+import com.example.hanoconnectapp.adapters.OrgCampaignAdapter;
+import com.example.hanoconnectapp.models.OrgCampaignItem;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CampaignsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class CampaignsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView rvCampaigns;
+    private OrgCampaignAdapter orgCampaignAdapter;
+    private List<OrgCampaignItem> campaignList = new ArrayList<>();
+    private ProgressBar progressBar;
 
     public CampaignsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CampaignsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CampaignsFragment newInstance(String param1, String param2) {
-        CampaignsFragment fragment = new CampaignsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_campaigns, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        rvCampaigns = view.findViewById(R.id.rvCampaigns);
+        progressBar = view.findViewById(R.id.progressBar);
+
+        setupRecyclerView();
+        loadDummyData();
+    }
+
+    private void setupRecyclerView() {
+        orgCampaignAdapter = new OrgCampaignAdapter(campaignList);
+        rvCampaigns.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvCampaigns.setAdapter(orgCampaignAdapter);
+    }
+
+    private void loadDummyData() {
+        progressBar.setVisibility(View.GONE);
+        rvCampaigns.setVisibility(View.VISIBLE);
+
+        campaignList.clear();
+        campaignList.add(new OrgCampaignItem("Mùa Hè Xanh 2025", "Có 123 đơn ứng tuyển", R.drawable.logo_hanoconnect));
+        campaignList.add(new OrgCampaignItem("Chiến dịch ví dụ", "Có 368 đơn ứng tuyển", R.drawable.logo_hanoconnect));
+        campaignList.add(new OrgCampaignItem("Tên chiến dịch mẫu 1", "Đã đóng chiến dịch", R.drawable.logo_hanoconnect));
+        campaignList.add(new OrgCampaignItem("Chiến dịch ví dụ 3", "Đã đóng chiến dịch", R.drawable.logo_hanoconnect));
+        campaignList.add(new OrgCampaignItem("Tên chiến dịch mẫu 2", "Đã đóng chiến dịch", R.drawable.logo_hanoconnect));
+        campaignList.add(new OrgCampaignItem("Tên chiến dịch 2", "Thông báo mẫu cho phần này", R.drawable.logo_hanoconnect));
+
+
+        orgCampaignAdapter.notifyDataSetChanged();
     }
 }

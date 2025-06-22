@@ -88,23 +88,7 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Phần Danh sách chiến dịch -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quản lý chiến dịch"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvOrgCampaigns"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="8dp"
-            tools:listitem="@layout/item_org_campaign"/>
+        <!-- Sau này có thể thêm các mục "Truy cập nhanh" ở đây -->
 
     </LinearLayout>
 

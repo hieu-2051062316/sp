@@ -65,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
                 case 0:
-                    tab.setIcon(R.drawable.ic_dashboard);
+                    tab.setIcon(R.drawable.ic_home_logo);
                     break;
                 case 1:
-                    tab.setIcon(R.drawable.ic_campaign);
+                    tab.setIcon(R.drawable.ic_star);
                     break;
                 case 2:
                     tab.setIcon(R.drawable.ic_notification);

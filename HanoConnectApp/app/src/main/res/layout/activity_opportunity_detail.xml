@@ -85,9 +85,38 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="8dp">
-                <TextView android:id="@+id/tvLocation" style="@style/DetailItem" tools:text="Địa điểm: Khu vực Hồ Tây, Hà Nội"/>
-                <TextView android:id="@+id/tvTime" style="@style/DetailItem" tools:text="Thời gian: 20/07/2025 - 30/07/2025"/>
-                <TextView android:id="@+id/tvSkills" style="@style/DetailItem" tools:text="Kỹ năng yêu cầu: Dạy học, IT"/>
+
+                <!-- Áp dụng style trực tiếp -->
+                <TextView
+                    android:id="@+id/tvLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#424242"
+                    android:drawablePadding="8dp"
+                    android:layout_marginBottom="8dp"
+                    tools:text="Địa điểm: Khu vực Hồ Tây, Hà Nội"/>
+
+                <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#424242"
+                    android:drawablePadding="8dp"
+                    android:layout_marginBottom="8dp"
+                    tools:text="Thời gian: 20/07/2025 - 30/07/2025"/>
+
+                <TextView
+                    android:id="@+id/tvSkills"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="#424242"
+                    android:drawablePadding="8dp"
+                    android:layout_marginBottom="8dp"
+                    tools:text="Kỹ năng yêu cầu: Dạy học, IT"/>
+
             </LinearLayout>
 
             <!-- Đường kẻ ngang -->

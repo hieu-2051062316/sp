@@ -30,23 +30,44 @@ public class OpportunityResponseDto implements Serializable {
     @SerializedName("skills")
     private List<SkillDto> skills;
 
-    // Constructor để Gson sử dụng khi phân tích JSON từ API
-    public OpportunityResponseDto() {}
+    public OpportunityResponseDto() {
+    }
 
-    // Constructor để tạo dữ liệu giả trong HomeFragment
     public OpportunityResponseDto(String title, String organizationName, String description) {
         this.title = title;
         this.organizationName = organizationName;
         this.description = description;
     }
 
-    // Getters
-    public int getOpportunityId() { return opportunityId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getLocation() { return location; }
-    public String getStartDate() { return startDate; }
-    public String getStatus() { return status; }
-    public String getOrganizationName() { return organizationName; }
-    public List<SkillDto> getSkills() { return skills; }
+    public int getOpportunityId() {
+        return opportunityId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public List<SkillDto> getSkills() {
+        return skills;
+    }
 }

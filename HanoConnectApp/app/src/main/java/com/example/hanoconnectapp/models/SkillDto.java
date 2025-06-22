@@ -1,8 +1,8 @@
 package com.example.hanoconnectapp.models;
 import com.google.gson.annotations.SerializedName;
-import java.io.Serializable; // Thêm import
+import java.io.Serializable;
 
-public class SkillDto implements Serializable { // Thêm implements
+public class SkillDto implements Serializable {
     @SerializedName("skillId")
     private int skillId;
 

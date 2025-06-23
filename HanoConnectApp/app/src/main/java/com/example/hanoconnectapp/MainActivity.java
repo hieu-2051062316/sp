@@ -24,20 +24,22 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.view_pager);
 
-        // Lấy Intent đã mở Activity này
+        // Lấy Intent đã mở Activity này.
         Intent intent = getIntent();
-        // Lấy vai trò từ Intent, nếu không có thì mặc định là "VOLUNTEER"
+        // Lấy vai trò từ Intent, nếu không có thì mặc định là "VOLUNTEER".
         String userRole = intent.getStringExtra("USER_ROLE");
         if (userRole == null) {
-            userRole = "VOLUNTEER"; // Giá trị mặc định an toàn
+            userRole = "VOLUNTEER"; // Giá trị mặc định an toàn.
         }
 
+        // Thiết lập giao diện dựa trên vai trò nhận được.
         setupUIForRole(userRole);
     }
 
     private void setupUIForRole(String role) {
         FragmentStateAdapter adapter;
-        if ("Organization".equalsIgnoreCase(role)) { // Dùng equalsIgnoreCase để an toàn
+        // Dùng equalsIgnoreCase để so sánh chuỗi không phân biệt hoa thường.
+        if ("Organization".equalsIgnoreCase(role)) {
             adapter = new OrganizationViewPagerAdapter(this);
             viewPager.setAdapter(adapter);
             setupOrganizationTabs();
@@ -51,10 +53,18 @@ public class MainActivity extends AppCompatActivity {
     private void setupVolunteerTabs() {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
-                case 0: tab.setIcon(R.drawable.ic_home_logo); break;
-                case 1: tab.setIcon(R.drawable.ic_star); break;
-                case 2: tab.setIcon(R.drawable.ic_notification); break;
-                case 3: tab.setIcon(R.drawable.ic_person); break;
+                case 0:
+                    tab.setIcon(R.drawable.ic_home_logo);
+                    break;
+                case 1:
+                    tab.setIcon(R.drawable.ic_star);
+                    break;
+                case 2:
+                    tab.setIcon(R.drawable.ic_notification);
+                    break;
+                case 3:
+                    tab.setIcon(R.drawable.ic_person);
+                    break;
             }
         }).attach();
     }
@@ -62,10 +72,18 @@ public class MainActivity extends AppCompatActivity {
     private void setupOrganizationTabs() {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
-                case 0: tab.setIcon(R.drawable.ic_home_logo); break;
-                case 1: tab.setIcon(R.drawable.ic_star); break;
-                case 2: tab.setIcon(R.drawable.ic_notification); break;
-                case 3: tab.setIcon(R.drawable.ic_person); break;
+                case 0:
+                    tab.setIcon(R.drawable.ic_home_logo);
+                    break;
+                case 1:
+                    tab.setIcon(R.drawable.ic_star);
+                    break;
+                case 2:
+                    tab.setIcon(R.drawable.ic_notification);
+                    break;
+                case 3:
+                    tab.setIcon(R.drawable.ic_person);
+                    break;
             }
         }).attach();
     }

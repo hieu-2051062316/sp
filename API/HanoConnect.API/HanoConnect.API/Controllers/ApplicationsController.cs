@@ -1,9 +1,8 @@
-﻿using HanoConnect.API.Data;
-using HanoConnect.API.DTOs;
+﻿using HanoConnect.API.DTOs;
+using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HanoConnect.API.Controllers
@@ -12,11 +11,11 @@ namespace HanoConnect.API.Controllers
     [ApiController]
     public class ApplicationsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IApplicationService _applicationService;
 
-        public ApplicationsController(ApplicationDbContext context)
+        public ApplicationsController(IApplicationService applicationService)
         {
-            _context = context;
+            _applicationService = applicationService;
         }
 
         [HttpPost("apply")]
@@ -24,44 +23,34 @@ namespace HanoConnect.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                              .Select(e => e.ErrorMessage);
+                return BadRequest(new
+                {
+                    message = "Dữ liệu gửi lên không hợp lệ.",
+                    errors = errors
+                });
             }
 
-            var existingApplication = await _context.Applications
-                .FirstOrDefaultAsync(a => a.VolunteerUserId == applyDto.VolunteerUserId && a.OpportunityId == applyDto.OpportunityId);
+            var (application, errorMessage) = await _applicationService.CreateApplicationAsync(applyDto);
 
-            if (existingApplication != null)
+            if (application == null)
             {
-                return Conflict("Bạn đã ứng tuyển vào cơ hội này rồi.");
+                if (errorMessage != null && errorMessage.Contains("đã ứng tuyển"))
+                {
+                    return Conflict(new { message = errorMessage });
+                }
+                return BadRequest(new { message = errorMessage ?? "Không thể tạo đơn ứng tuyển." });
             }
 
-            var application = new Application
-            {
-                OpportunityId = applyDto.OpportunityId,
-                VolunteerUserId = applyDto.VolunteerUserId,
-                MotivationLetter = applyDto.MotivationLetter,
-                CvUrl = applyDto.CvUrl,
-                ApplicationTime = DateTime.UtcNow,
-                Status = "Pending"
-            };
-
-            _context.Applications.Add(application);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetApplication), new { id = application.ApplicationId }, application);
+            return StatusCode(201, application);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Application>> GetApplication(int id)
         {
-            var application = await _context.Applications.FindAsync(id);
-
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-            return application;
+            // TODO: Triển khai logic lấy Application bằng Service
+            return Ok(new { Message = $"Placeholder for getting application with ID {id}." });
         }
     }
 }

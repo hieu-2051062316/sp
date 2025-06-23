@@ -6,14 +6,24 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import com.example.hanoconnectapp.adapters.OpportunityAdapter;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
+import com.example.hanoconnectapp.networking.ApiService;
+import com.example.hanoconnectapp.networking.RetrofitClient;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
@@ -40,38 +50,51 @@ public class HomeFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
 
         setupRecyclerView();
-        loadDummyData();
+
+        // Gọi API thật thay vì dữ liệu giả
+        fetchOpportunities();
     }
 
     private void setupRecyclerView() {
-        // Cập nhật lại dòng này để truyền Context vào Adapter.
         opportunityAdapter = new OpportunityAdapter(getContext(), opportunityList);
         rvOpportunities.setLayoutManager(new LinearLayoutManager(getContext()));
         rvOpportunities.setAdapter(opportunityAdapter);
     }
 
-    private void loadDummyData() {
-        progressBar.setVisibility(View.GONE);
-        rvOpportunities.setVisibility(View.VISIBLE);
+    private void fetchOpportunities() {
+        progressBar.setVisibility(View.VISIBLE);
+        rvOpportunities.setVisibility(View.GONE);
 
-        opportunityList.clear();
+        ApiService apiService = RetrofitClient.getApiService();
+        Call<List<OpportunityResponseDto>> call = apiService.getOpportunities();
 
-        opportunityList.add(new OpportunityResponseDto(
-                "Giới thiệu chiến dịch tình nguyện Hà Nội của tôi:",
-                "Hà Nội Của Tôi",
-                "Chiến dịch tình nguyện Hà Nội của tôi là hành trình kết nối những trái tim nhiệt huyết vì cộng đồng..."
-        ));
-        opportunityList.add(new OpportunityResponseDto(
-                "Mùa Hè Xanh 2025 - Lên đường cống hiến!",
-                "Mùa Hè Xanh 2025",
-                "Những bước chân tình nguyện lại lên đường, mang theo nhiệt huyết tuổi trẻ đến với các vùng quê khó khăn..."
-        ));
-        opportunityList.add(new OpportunityResponseDto(
-                "Dạy học cho trẻ em vùng cao",
-                "Quỹ Ước Mơ",
-                "Chương trình mang kiến thức và niềm vui đến cho các em nhỏ tại các điểm trường khó khăn nhất."
-        ));
+        call.enqueue(new Callback<List<OpportunityResponseDto>>() {
+            @Override
+            public void onResponse(Call<List<OpportunityResponseDto>> call, Response<List<OpportunityResponseDto>> response) {
+                if (isAdded()) {
+                    progressBar.setVisibility(View.GONE);
+                    rvOpportunities.setVisibility(View.VISIBLE);
 
-        opportunityAdapter.notifyDataSetChanged();
+                    if (response.isSuccessful() && response.body() != null) {
+                        opportunityList.clear();
+                        opportunityList.addAll(response.body());
+                        opportunityAdapter.notifyDataSetChanged();
+                        Log.d("API_SUCCESS", "Data loaded into HomeFragment's RecyclerView.");
+                    } else {
+                        Toast.makeText(getContext(), "Lỗi khi tải dữ liệu", Toast.LENGTH_SHORT).show();
+                        Log.e("API_ERROR", "API call failed with code: " + response.code());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<OpportunityResponseDto>> call, Throwable t) {
+                if (isAdded()) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                    Log.e("API_FAILURE", "API request failed.", t);
+                }
+            }
+        });
     }
 }

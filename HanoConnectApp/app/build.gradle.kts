@@ -46,4 +46,5 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }

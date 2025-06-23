@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.example.hanoconnectapp.ApplyActivity;
 import com.example.hanoconnectapp.OpportunityDetailActivity;
 import com.example.hanoconnectapp.R;
@@ -38,19 +40,24 @@ public class OpportunityAdapter extends RecyclerView.Adapter<OpportunityAdapter.
     public void onBindViewHolder(@NonNull OpportunityViewHolder holder, int position) {
         OpportunityResponseDto opportunity = opportunityList.get(position);
 
-        // Gán dữ liệu
         holder.tvOrgName.setText(opportunity.getOrganizationName());
         holder.tvOpportunityTitle.setText(opportunity.getTitle());
         holder.tvOpportunityDescription.setText(opportunity.getDescription());
 
-        // Sự kiện click cho toàn bộ thẻ -> Mở màn hình chi tiết
+        // Sử dụng Glide để tải ảnh logo từ URL
+        Glide.with(context)
+                .load(opportunity.getOrganizationLogoUrl())
+                .placeholder(R.drawable.logo_hanoconnect) // Ảnh hiển thị trong lúc tải
+                .error(R.drawable.logo_hanoconnect)       // Ảnh hiển thị khi có lỗi
+                .circleCrop() // Bo tròn ảnh
+                .into(holder.ivOrgLogo);
+
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, OpportunityDetailActivity.class);
             intent.putExtra("OPPORTUNITY_DETAIL", opportunity);
             context.startActivity(intent);
         });
 
-        // Sự kiện click riêng cho nút "ỨNG TUYỂN" -> Mở màn hình nộp đơn
         holder.btnApply.setOnClickListener(v -> {
             Intent applyIntent = new Intent(context, ApplyActivity.class);
             applyIntent.putExtra("OPPORTUNITY_ID", opportunity.getOpportunityId());
@@ -58,7 +65,6 @@ public class OpportunityAdapter extends RecyclerView.Adapter<OpportunityAdapter.
             context.startActivity(applyIntent);
         });
 
-        // Sự kiện click riêng cho nút "QUAN TÂM" (tạm thời)
         holder.btnFollow.setOnClickListener(v -> {
             Toast.makeText(context, "Đã thêm vào danh sách quan tâm!", Toast.LENGTH_SHORT).show();
         });
@@ -74,7 +80,7 @@ public class OpportunityAdapter extends RecyclerView.Adapter<OpportunityAdapter.
         TextView tvOrgName;
         TextView tvOpportunityTitle;
         TextView tvOpportunityDescription;
-        MaterialButton btnApply, btnFollow; // Thêm khai báo cho các nút
+        MaterialButton btnApply, btnFollow;
 
         public OpportunityViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,7 +88,7 @@ public class OpportunityAdapter extends RecyclerView.Adapter<OpportunityAdapter.
             tvOrgName = itemView.findViewById(R.id.tvOrgName);
             tvOpportunityTitle = itemView.findViewById(R.id.tvOpportunityTitle);
             tvOpportunityDescription = itemView.findViewById(R.id.tvOpportunityDescription);
-            btnApply = itemView.findViewById(R.id.btnApply); // Tìm các nút bằng ID
+            btnApply = itemView.findViewById(R.id.btnApply);
             btnFollow = itemView.findViewById(R.id.btnFollow);
         }
     }

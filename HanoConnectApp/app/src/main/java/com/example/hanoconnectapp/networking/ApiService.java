@@ -1,5 +1,6 @@
 package com.example.hanoconnectapp.networking;
 
+import com.example.hanoconnectapp.models.ApplyRequest; // Import model mới
 import com.example.hanoconnectapp.models.LoginRequest;
 import com.example.hanoconnectapp.models.LoginResponse;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
@@ -10,12 +11,20 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface ApiService {
     @GET("api/Opportunity")
     Call<List<OpportunityResponseDto>> getOpportunities();
 
-    // Endpoint mới cho việc đăng nhập
+    @GET("api/Opportunity/{id}")
+    Call<OpportunityResponseDto> getOpportunityById(@Path("id") int opportunityId);
+
     @POST("api/Auth/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
+
+    // --- BẮT ĐẦU THÊM MỚI ---
+    @POST("api/applications/apply")
+    Call<Void> createApplication(@Body ApplyRequest applyRequest);
+    // --- KẾT THÚC THÊM MỚI ---
 }

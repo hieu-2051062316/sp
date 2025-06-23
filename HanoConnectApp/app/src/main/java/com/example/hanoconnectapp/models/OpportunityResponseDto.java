@@ -27,6 +27,10 @@ public class OpportunityResponseDto implements Serializable {
     @SerializedName("organizationName")
     private String organizationName;
 
+    // Thêm thuộc tính mới để lấy URL logo
+    @SerializedName("organizationLogoUrl")
+    private String organizationLogoUrl;
+
     @SerializedName("skills")
     private List<SkillDto> skills;
 
@@ -37,6 +41,7 @@ public class OpportunityResponseDto implements Serializable {
         this.title = title;
         this.organizationName = organizationName;
         this.description = description;
+        this.organizationLogoUrl = null; // Logo sẽ không hiển thị cho dữ liệu giả
     }
 
     public int getOpportunityId() {
@@ -65,6 +70,10 @@ public class OpportunityResponseDto implements Serializable {
 
     public String getOrganizationName() {
         return organizationName;
+    }
+
+    public String getOrganizationLogoUrl() {
+        return organizationLogoUrl;
     }
 
     public List<SkillDto> getSkills() {

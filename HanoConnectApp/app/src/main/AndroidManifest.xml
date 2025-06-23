@@ -16,6 +16,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ReviewApplicationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ViewApplicantsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ApplyActivity"
             android:exported="false" />
         <activity

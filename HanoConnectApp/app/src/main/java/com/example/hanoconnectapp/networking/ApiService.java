@@ -1,8 +1,9 @@
 package com.example.hanoconnectapp.networking;
 
-import com.example.hanoconnectapp.models.ApplyRequest; // Import model mới
+import com.example.hanoconnectapp.models.ApplyRequest;
 import com.example.hanoconnectapp.models.LoginRequest;
 import com.example.hanoconnectapp.models.LoginResponse;
+import com.example.hanoconnectapp.models.OpportunityCreateRequest; // Import model mới
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 
 import java.util.List;
@@ -23,8 +24,11 @@ public interface ApiService {
     @POST("api/Auth/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
-    // --- BẮT ĐẦU THÊM MỚI ---
     @POST("api/applications/apply")
     Call<Void> createApplication(@Body ApplyRequest applyRequest);
+
+    // --- BẮT ĐẦU THÊM MỚI ---
+    @POST("api/Opportunity")
+    Call<OpportunityResponseDto> createOpportunity(@Body OpportunityCreateRequest opportunityRequest);
     // --- KẾT THÚC THÊM MỚI ---
 }

@@ -7,6 +7,7 @@ public class SessionManager {
 
     private static final String PREF_NAME = "HanoConnectAppPref";
     private static final String KEY_USER_ID = "user_id";
+    private static final String KEY_ORGANIZATION_ID = "organization_id"; // Key mới
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
     private static final int PRIVATE_MODE = 0;
 
@@ -21,12 +22,19 @@ public class SessionManager {
     }
 
     /**
-     * Lưu user ID vào SharedPreferences sau khi đăng nhập thành công.
+     * Lưu thông tin session sau khi đăng nhập thành công.
      * @param userId ID của người dùng
+     * @param organizationId ID của tổ chức (có thể là null)
      */
-    public void createLoginSession(int userId) {
+    public void createLoginSession(int userId, Integer organizationId) {
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
         editor.putInt(KEY_USER_ID, userId);
+
+        // Chỉ lưu organizationId nếu nó không null
+        if (organizationId != null) {
+            editor.putInt(KEY_ORGANIZATION_ID, organizationId);
+        }
+
         editor.commit();
     }
 
@@ -35,8 +43,17 @@ public class SessionManager {
      * @return Trả về User ID, hoặc -1 nếu không tìm thấy.
      */
     public int getUserId() {
-        return pref.getInt(KEY_USER_ID, -1); // -1 là giá trị mặc định nếu không tìm thấy key
+        return pref.getInt(KEY_USER_ID, -1);
     }
+
+    /**
+     * Lấy Organization ID đã được lưu.
+     * @return Trả về Organization ID, hoặc -1 nếu không tìm thấy.
+     */
+    public int getOrganizationId() {
+        return pref.getInt(KEY_ORGANIZATION_ID, -1);
+    }
+
 
     /**
      * Kiểm tra xem người dùng đã đăng nhập hay chưa.
@@ -51,10 +68,5 @@ public class SessionManager {
     public void logoutUser() {
         editor.clear();
         editor.commit();
-        // Sau khi logout, có thể điều hướng người dùng về màn hình Login
-        // Intent i = new Intent(_context, LoginActivity.class);
-        // i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        // i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // _context.startActivity(i);
     }
 }

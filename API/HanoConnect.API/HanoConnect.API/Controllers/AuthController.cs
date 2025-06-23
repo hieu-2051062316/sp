@@ -1,9 +1,9 @@
 ﻿using HanoConnect.API.DTOs;
 using HanoConnect.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq; // Cần thêm để sử dụng .FirstOrDefault()
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // Cần thêm để sử dụng .Include()
+using Microsoft.EntityFrameworkCore;
 
 namespace HanoConnect.API.Controllers
 {
@@ -12,7 +12,7 @@ namespace HanoConnect.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly Data.ApplicationDbContext _context; // Dùng DbContext để lấy vai trò
+        private readonly Data.ApplicationDbContext _context;
 
         public AuthController(IUserService userService, Data.ApplicationDbContext context)
         {
@@ -40,9 +40,7 @@ namespace HanoConnect.API.Controllers
             }
 
             // *** CHÚ Ý: BỎ QUA HOÀN TOÀN VIỆC KIỂM TRA MẬT KHẨU ĐỂ TEST ***
-            // Trong dự án thực tế, đây là nơi sẽ kiểm tra mật khẩu đã được băm.
-
-            var userRole = user.UserRoles?.FirstOrDefault()?.Role?.RoleName ?? "Volunteer"; // Lấy vai trò đầu tiên, hoặc mặc định là Volunteer
+            var userRole = user.UserRoles?.FirstOrDefault()?.Role?.RoleName ?? "Volunteer";
 
             var response = new LoginResponseDto
             {
@@ -51,6 +49,19 @@ namespace HanoConnect.API.Controllers
                 FullName = user.FullName,
                 Role = userRole
             };
+
+            // --- BẮT ĐẦU THAY ĐỔI ---
+            // Nếu người dùng là một tổ chức, tìm và đính kèm OrganizationId
+            if (userRole.Equals("Organization", System.StringComparison.OrdinalIgnoreCase))
+            {
+                var organization = await _context.Organizations
+                                                 .FirstOrDefaultAsync(o => o.UserId == user.UserId);
+                if (organization != null)
+                {
+                    response.OrganizationId = organization.OrganizationId;
+                }
+            }
+            // --- KẾT THÚC THAY ĐỔI ---
 
             return Ok(response);
         }

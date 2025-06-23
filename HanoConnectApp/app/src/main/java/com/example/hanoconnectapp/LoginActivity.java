@@ -12,7 +12,7 @@ import com.example.hanoconnectapp.models.LoginRequest;
 import com.example.hanoconnectapp.models.LoginResponse;
 import com.example.hanoconnectapp.networking.ApiService;
 import com.example.hanoconnectapp.networking.RetrofitClient;
-import com.example.hanoconnectapp.util.SessionManager; // Import lớp SessionManager
+import com.example.hanoconnectapp.util.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
 import retrofit2.Call;
@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        // progressBar = findViewById(R.id.progressBar_login);
+        // progressBar = findViewById(R.id.progressBar_login); // Bạn cần thêm ID này vào layout nếu muốn dùng
 
         sessionManager = new SessionManager(getApplicationContext()); // Khởi tạo session manager
 
@@ -52,8 +52,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void performLogin(String email, String password) {
+        // Ví dụ về cách hiển thị loading
         // btnLogin.setEnabled(false);
-        // progressBar.setVisibility(View.VISIBLE);
+        // if(progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
         ApiService apiService = RetrofitClient.getApiService();
         LoginRequest loginRequest = new LoginRequest(email, password);
@@ -62,19 +63,17 @@ public class LoginActivity extends AppCompatActivity {
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                // Ví dụ về cách ẩn loading
                 // btnLogin.setEnabled(true);
-                // progressBar.setVisibility(View.GONE);
+                // if(progressBar != null) progressBar.setVisibility(View.GONE);
 
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
                     LoginResponse loginResponse = response.body();
 
-                    // --- BẮT ĐẦU THAY ĐỔI ---
-                    // Lưu thông tin phiên đăng nhập
-                    sessionManager.createLoginSession(loginResponse.getUserId());
-                    // --- KẾT THÚC THAY ĐỔI ---
-
+                    // Lưu thông tin phiên đăng nhập, bao gồm cả organizationId
+                    sessionManager.createLoginSession(loginResponse.getUserId(), loginResponse.getOrganizationId());
 
                     // Chuyển sang MainActivity và "gửi kèm" vai trò của người dùng
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -88,8 +87,9 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
+                // Ví dụ về cách ẩn loading
                 // btnLogin.setEnabled(true);
-                // progressBar.setVisibility(View.GONE);
+                // if(progressBar != null) progressBar.setVisibility(View.GONE);
                 Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

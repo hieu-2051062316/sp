@@ -5,11 +5,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+// Thêm các import còn thiếu cho tất cả các Fragment
 import com.example.hanoconnectapp.HomeFragment;
 import com.example.hanoconnectapp.fragments.FollowedFragment;
 import com.example.hanoconnectapp.fragments.NotificationFragment;
 import com.example.hanoconnectapp.fragments.ProfileFragment;
-
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
 

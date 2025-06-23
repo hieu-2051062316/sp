@@ -34,13 +34,13 @@
             tools:text="Mùa Hè Xanh 2025" />
 
         <TextView
-            android:id="@+id/tvStatus"
+            android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="#4CAF50"
+            android:textColor="#555555"
             android:textSize="14sp"
-            tools:text="Có lịch phỏng vấn" />
+            tools:text="Chiến dịch của bạn đã nhận được 123 đơn ứng tuyển." />
 
     </LinearLayout>
 

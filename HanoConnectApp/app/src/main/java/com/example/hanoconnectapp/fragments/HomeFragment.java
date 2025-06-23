@@ -40,24 +40,22 @@ public class HomeFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
 
         setupRecyclerView();
-        loadDummyData(); // <--- THAY ĐỔI QUAN TRỌNG: Gọi hàm tải dữ liệu giả
+        loadDummyData();
     }
 
     private void setupRecyclerView() {
-        // Cung cấp getContext() cho Adapter
+        // Cập nhật lại dòng này để truyền Context vào Adapter.
         opportunityAdapter = new OpportunityAdapter(getContext(), opportunityList);
         rvOpportunities.setLayoutManager(new LinearLayoutManager(getContext()));
         rvOpportunities.setAdapter(opportunityAdapter);
     }
 
-    // HÀM MỚI: TẠO VÀ HIỂN THỊ DỮ LIỆU GIẢ
     private void loadDummyData() {
-        progressBar.setVisibility(View.GONE); // Ẩn progress bar
-        rvOpportunities.setVisibility(View.VISIBLE); // Hiện RecyclerView
+        progressBar.setVisibility(View.GONE);
+        rvOpportunities.setVisibility(View.VISIBLE);
 
-        opportunityList.clear(); // Xóa dữ liệu cũ nếu có
+        opportunityList.clear();
 
-        // Tạo một vài cơ hội giả
         opportunityList.add(new OpportunityResponseDto(
                 "Giới thiệu chiến dịch tình nguyện Hà Nội của tôi:",
                 "Hà Nội Của Tôi",
@@ -74,40 +72,6 @@ public class HomeFragment extends Fragment {
                 "Chương trình mang kiến thức và niềm vui đến cho các em nhỏ tại các điểm trường khó khăn nhất."
         ));
 
-        opportunityAdapter.notifyDataSetChanged(); // Báo cho Adapter cập nhật lại giao diện
+        opportunityAdapter.notifyDataSetChanged();
     }
-
-    /*
-    // HÀM GỌI API THẬT - TẠM THỜI ĐƯỢC CHÚ THÍCH (COMMENT OUT)
-    private void fetchOpportunities() {
-        progressBar.setVisibility(View.VISIBLE);
-        rvOpportunities.setVisibility(View.GONE);
-
-        ApiService apiService = RetrofitClient.getApiService();
-        Call<List<OpportunityResponseDto>> call = apiService.getOpportunities();
-
-        call.enqueue(new Callback<List<OpportunityResponseDto>>() {
-            @Override
-            public void onResponse(Call<List<OpportunityResponseDto>> call, Response<List<OpportunityResponseDto>> response) {
-                if (isAdded()) {
-                    progressBar.setVisibility(View.GONE);
-                    rvOpportunities.setVisibility(View.VISIBLE);
-
-                    if (response.isSuccessful() && response.body() != null) {
-                        opportunityList.clear();
-                        opportunityList.addAll(response.body());
-                        opportunityAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<OpportunityResponseDto>> call, Throwable t) {
-                if (isAdded()) {
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
-    }
-    */
 }

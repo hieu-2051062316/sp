@@ -29,7 +29,7 @@ public class FollowedFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout, chúng ta có thể dùng lại layout của HomeFragment
+        // Chúng ta có thể dùng lại layout của fragment_home vì nó cũng chỉ chứa 1 RecyclerView
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -37,7 +37,10 @@ public class FollowedFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        rvFollowed = view.findViewById(R.id.rvOpportunities); // Dùng lại ID từ fragment_home
+        // Chú ý: Dùng lại ID của RecyclerView từ fragment_home
+        rvFollowed = view.findViewById(R.id.rvOpportunities);
+        // Ẩn ProgressBar vì chúng ta không tải dữ liệu từ mạng ở bước này
+        view.findViewById(R.id.progressBar).setVisibility(View.GONE);
 
         setupRecyclerView();
         loadDummyData();
@@ -48,7 +51,7 @@ public class FollowedFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvFollowed.setLayoutManager(layoutManager);
         rvFollowed.setAdapter(followedAdapter);
-        // Thêm đường kẻ ngang giữa các item
+        // Thêm đường kẻ ngang giữa các item để dễ phân biệt
         rvFollowed.addItemDecoration(new DividerItemDecoration(getContext(), layoutManager.getOrientation()));
     }
 
@@ -58,6 +61,7 @@ public class FollowedFragment extends Fragment {
         followedList.add(new FollowedOpportunity("Hà Nội Của Tôi", "Đang chờ xét duyệt", R.drawable.logo_hanoconnect));
         followedList.add(new FollowedOpportunity("Dọn dẹp Hồ Gươm", "Đã ứng tuyển", R.drawable.logo_hanoconnect));
         followedList.add(new FollowedOpportunity("Trung thu cho em", "Đã từ chối", R.drawable.logo_hanoconnect));
+        followedList.add(new FollowedOpportunity("Giảng dạy cuối tuần", "Đã được chấp nhận", R.drawable.logo_hanoconnect));
 
         followedAdapter.notifyDataSetChanged();
     }

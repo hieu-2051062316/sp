@@ -6,6 +6,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import java.util.stream.Collectors;
 
 public class OpportunityDetailActivity extends AppCompatActivity {
@@ -24,6 +25,7 @@ public class OpportunityDetailActivity extends AppCompatActivity {
         TextView tvLocation = findViewById(R.id.tvLocation);
         TextView tvTime = findViewById(R.id.tvTime);
         TextView tvSkills = findViewById(R.id.tvSkills);
+        MaterialButton btnApply = findViewById(R.id.btnApply);
 
         // Nhận đối tượng từ Intent
         Intent intent = getIntent();
@@ -36,13 +38,13 @@ public class OpportunityDetailActivity extends AppCompatActivity {
                 toolbar.setTitle(opportunity.getOrganizationName());
                 tvOpportunityTitle.setText(opportunity.getTitle());
                 tvOpportunityDescription.setText(opportunity.getDescription());
-                tvLocation.setText("Địa điểm: " + opportunity.getLocation());
 
-                // Định dạng lại thời gian (nếu cần) và hiển thị
-                String time = "Thời gian: " + (opportunity.getStartDate() != null ? opportunity.getStartDate().substring(0, 10) : "Linh hoạt");
+                // Vì là dữ liệu giả, các trường này có thể null.
+                // Chúng ta sẽ hiển thị nếu có, hoặc để trống.
+                tvLocation.setText("Địa điểm: " + (opportunity.getLocation() != null ? opportunity.getLocation() : "Chưa cập nhật"));
+                String time = "Thời gian: " + (opportunity.getStartDate() != null ? opportunity.getStartDate() : "Linh hoạt");
                 tvTime.setText(time);
 
-                // Nối các kỹ năng thành một chuỗi
                 if (opportunity.getSkills() != null && !opportunity.getSkills().isEmpty()) {
                     String skillsText = opportunity.getSkills().stream()
                             .map(skill -> skill.getSkillName())
@@ -51,6 +53,14 @@ public class OpportunityDetailActivity extends AppCompatActivity {
                 } else {
                     tvSkills.setText("Kỹ năng yêu cầu: Không yêu cầu cụ thể");
                 }
+
+                // Thiết lập sự kiện click cho nút "ỨNG TUYỂN"
+                btnApply.setOnClickListener(v -> {
+                    Intent applyIntent = new Intent(OpportunityDetailActivity.this, ApplyActivity.class);
+                    applyIntent.putExtra("OPPORTUNITY_ID", opportunity.getOpportunityId());
+                    applyIntent.putExtra("OPPORTUNITY_NAME", opportunity.getTitle());
+                    startActivity(applyIntent);
+                });
             }
         }
     }

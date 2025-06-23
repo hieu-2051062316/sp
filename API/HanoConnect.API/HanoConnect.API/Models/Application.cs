@@ -25,11 +25,13 @@ namespace HanoConnect.API.Models
         [Column(TypeName = "NVARCHAR(MAX)")]
         public string? OrganizationNotes { get; set; }
 
-        // Navigation properties
+        [Column(TypeName = "NVARCHAR(MAX)")]
+        public string? CvUrl { get; set; }
+
         [ForeignKey("OpportunityId")]
-        public required Opportunity Opportunity { get; set; }
+        public Opportunity Opportunity { get; set; }
 
         [ForeignKey("VolunteerUserId")]
-        public required User VolunteerUser { get; set; }
+        public User VolunteerUser { get; set; }
     }
 }

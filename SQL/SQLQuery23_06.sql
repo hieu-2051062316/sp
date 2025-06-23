@@ -1,0 +1,2 @@
+ALTER TABLE Applications
+ADD CvUrl NVARCHAR(MAX) NULL;

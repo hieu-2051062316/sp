@@ -7,10 +7,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.hanoconnectapp.R;
 import com.example.hanoconnectapp.models.FollowedOpportunity;
-
 import java.util.List;
 
 public class FollowedAdapter extends RecyclerView.Adapter<FollowedAdapter.FollowedViewHolder> {

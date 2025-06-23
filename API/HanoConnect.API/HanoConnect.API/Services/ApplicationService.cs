@@ -1,11 +1,11 @@
-﻿using HanoConnect.API.Data; // Cần để truy cập DbContext
+﻿using HanoConnect.API.Data;
 using HanoConnect.API.DTOs;
 using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
-using Microsoft.EntityFrameworkCore; // Cần cho Include và Select
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic; // Cần cho IEnumerable
-using System.Linq; // Cần cho Select
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HanoConnect.API.Services
@@ -13,7 +13,7 @@ namespace HanoConnect.API.Services
     public class ApplicationService : IApplicationService
     {
         private readonly IApplicationRepository _applicationRepository;
-        private readonly ApplicationDbContext _context; // Inject DbContext để join bảng
+        private readonly ApplicationDbContext _context;
 
         public ApplicationService(IApplicationRepository applicationRepository, ApplicationDbContext context)
         {
@@ -21,9 +21,10 @@ namespace HanoConnect.API.Services
             _context = context;
         }
 
+        // ... (hàm CreateApplicationAsync và GetApplicantsForOpportunityAsync giữ nguyên)
+
         public async Task<(Application? application, string? errorMessage)> CreateApplicationAsync(ApplyDto applyDto)
         {
-            // Kiểm tra xem người dùng đã ứng tuyển cơ hội này chưa
             var existingApplication = await _applicationRepository.FindByUserAndOpportunityAsync(applyDto.VolunteerUserId, applyDto.OpportunityId);
             if (existingApplication != null)
             {
@@ -46,12 +47,11 @@ namespace HanoConnect.API.Services
             return (application, null);
         }
 
-        // Lấy danh sách ứng viên cho một cơ hội
         public async Task<IEnumerable<ApplicantDto>> GetApplicantsForOpportunityAsync(int opportunityId)
         {
             var applicants = await _context.Applications
                 .Where(a => a.OpportunityId == opportunityId)
-                .Include(a => a.VolunteerUser) // Join với bảng Users để lấy thông tin người dùng
+                .Include(a => a.VolunteerUser)
                 .Select(a => new ApplicantDto
                 {
                     ApplicationId = a.ApplicationId,
@@ -65,6 +65,22 @@ namespace HanoConnect.API.Services
                 .ToListAsync();
 
             return applicants;
+        }
+
+        // Hàm cập nhật trạng thái đơn
+        public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string newStatus)
+        {
+            var application = await _applicationRepository.GetByIdAsync(applicationId);
+            if (application == null)
+            {
+                return false; // Không tìm thấy đơn
+            }
+
+            application.Status = newStatus;
+            // Cập nhật thêm các trường khác nếu cần, ví dụ: OrganizationNotes
+            _applicationRepository.Update(application);
+
+            return await _applicationRepository.SaveChangesAsync();
         }
     }
 }

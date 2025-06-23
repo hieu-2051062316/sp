@@ -1,6 +1,6 @@
 package com.example.hanoconnectapp.networking;
 
-import com.example.hanoconnectapp.models.ApplicantResponse; // Import model mới
+import com.example.hanoconnectapp.models.ApplicantResponse;
 import com.example.hanoconnectapp.models.ApplyRequest;
 import com.example.hanoconnectapp.models.Cause;
 import com.example.hanoconnectapp.models.LoginRequest;
@@ -8,18 +8,21 @@ import com.example.hanoconnectapp.models.LoginResponse;
 import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 import com.example.hanoconnectapp.models.SkillDto;
+import com.example.hanoconnectapp.models.UpdateApplicationStatusRequest;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ApiService {
 
-    // Các API liên quan đến Opportunity
+    // APIs cho Opportunity
     @GET("api/Opportunity")
     Call<List<OpportunityResponseDto>> getOpportunities();
 
@@ -29,24 +32,27 @@ public interface ApiService {
     @POST("api/Opportunity")
     Call<OpportunityResponseDto> createOpportunity(@Body OpportunityCreateRequest opportunityRequest);
 
-    @GET("api/Opportunity/by-organization/{organizationId}") // API lấy chiến dịch của tổ chức
+    @GET("api/Opportunity/by-organization/{organizationId}")
     Call<List<OpportunityResponseDto>> getOpportunitiesByOrganization(@Path("organizationId") int organizationId);
 
 
-    // API xác thực
+    // APIs cho Application
+    @POST("api/applications/apply")
+    Call<Void> createApplication(@Body ApplyRequest applyRequest);
+
+    @GET("api/applications/opportunity/{opportunityId}")
+    Call<List<ApplicantResponse>> getApplicantsForOpportunity(@Path("opportunityId") int opportunityId);
+
+    @PUT("api/applications/{applicationId}/status")
+    Call<ResponseBody> updateApplicationStatus(@Path("applicationId") int applicationId, @Body UpdateApplicationStatusRequest statusRequest);
+
+
+    // API cho Auth
     @POST("api/Auth/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
 
-    // API ứng tuyển
-    @POST("api/applications/apply")
-    Call<Void> createApplication(@Body ApplyRequest applyRequest);
-
-    @GET("api/applications/opportunity/{opportunityId}") // API lấy danh sách ứng viên
-    Call<List<ApplicantResponse>> getApplicantsForOpportunity(@Path("opportunityId") int opportunityId);
-
-
-    // API lấy các danh mục
+    // APIs lấy danh mục
     @GET("api/Causes")
     Call<List<Cause>> getCauses();
 

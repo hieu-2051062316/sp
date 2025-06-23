@@ -1,16 +1,16 @@
 ﻿using HanoConnect.API.DTOs;
 using HanoConnect.API.Models;
-using System.Collections.Generic; // Cần cho IEnumerable
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HanoConnect.API.Interfaces
 {
     public interface IApplicationService
     {
-        // Trả về một tuple chứa application hoặc một thông báo lỗi
         Task<(Application? application, string? errorMessage)> CreateApplicationAsync(ApplyDto applyDto);
-
-        // Lấy danh sách ứng viên cho một cơ hội
         Task<IEnumerable<ApplicantDto>> GetApplicantsForOpportunityAsync(int opportunityId);
+
+        // Cập nhật trạng thái của một đơn ứng tuyển
+        Task<bool> UpdateApplicationStatusAsync(int applicationId, string newStatus);
     }
 }

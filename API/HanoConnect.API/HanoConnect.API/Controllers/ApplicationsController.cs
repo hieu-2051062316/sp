@@ -2,6 +2,7 @@
 using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic; // Cần cho IEnumerable
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,14 @@ namespace HanoConnect.API.Controllers
         public ApplicationsController(IApplicationService applicationService)
         {
             _applicationService = applicationService;
+        }
+
+        // Endpoint mới để lấy danh sách ứng viên
+        [HttpGet("opportunity/{opportunityId}")]
+        public async Task<ActionResult<IEnumerable<ApplicantDto>>> GetApplicants(int opportunityId)
+        {
+            var applicants = await _applicationService.GetApplicantsForOpportunityAsync(opportunityId);
+            return Ok(applicants);
         }
 
         [HttpPost("apply")]

@@ -1,5 +1,6 @@
 package com.example.hanoconnectapp.networking;
 
+import com.example.hanoconnectapp.models.ApplicantResponse; // Import model mới
 import com.example.hanoconnectapp.models.ApplyRequest;
 import com.example.hanoconnectapp.models.Cause;
 import com.example.hanoconnectapp.models.LoginRequest;
@@ -28,6 +29,9 @@ public interface ApiService {
     @POST("api/Opportunity")
     Call<OpportunityResponseDto> createOpportunity(@Body OpportunityCreateRequest opportunityRequest);
 
+    @GET("api/Opportunity/by-organization/{organizationId}") // API lấy chiến dịch của tổ chức
+    Call<List<OpportunityResponseDto>> getOpportunitiesByOrganization(@Path("organizationId") int organizationId);
+
 
     // API xác thực
     @POST("api/Auth/login")
@@ -37,6 +41,9 @@ public interface ApiService {
     // API ứng tuyển
     @POST("api/applications/apply")
     Call<Void> createApplication(@Body ApplyRequest applyRequest);
+
+    @GET("api/applications/opportunity/{opportunityId}") // API lấy danh sách ứng viên
+    Call<List<ApplicantResponse>> getApplicantsForOpportunity(@Path("opportunityId") int opportunityId);
 
 
     // API lấy các danh mục

@@ -1,4 +1,3 @@
-// Đã cập nhật để import và sử dụng ReviewApplicationActivity.
 package com.example.hanoconnectapp.adapters;
 
 import android.content.Context;
@@ -10,17 +9,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.example.hanoconnectapp.R;
 import com.example.hanoconnectapp.ReviewApplicationActivity;
-import com.example.hanoconnectapp.models.ApplicantItem;
+import com.example.hanoconnectapp.models.ApplicantResponse; // Sử dụng model mới
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.ApplicantViewHolder> {
 
-    private List<ApplicantItem> applicantList;
+    private List<ApplicantResponse> applicantList;
     private Context context;
 
-    public ApplicantAdapter(Context context, List<ApplicantItem> applicantList) {
+    // Sửa constructor để nhận List<ApplicantResponse>
+    public ApplicantAdapter(Context context, List<ApplicantResponse> applicantList) {
         this.context = context;
         this.applicantList = applicantList;
     }
@@ -34,14 +39,29 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
 
     @Override
     public void onBindViewHolder(@NonNull ApplicantViewHolder holder, int position) {
-        ApplicantItem item = applicantList.get(position);
-        holder.tvApplicantName.setText(item.getName());
-        holder.tvApplyDate.setText(item.getApplyDate());
-        holder.ivApplicantAvatar.setImageResource(item.getAvatarResId());
+        ApplicantResponse item = applicantList.get(position);
+        holder.tvApplicantName.setText(item.getVolunteerName());
+
+        // Format lại ngày tháng cho dễ nhìn
+        try {
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            LocalDateTime dateTime = LocalDateTime.parse(item.getApplicationTime(), inputFormatter);
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            holder.tvApplyDate.setText("Nộp ngày: " + dateTime.format(outputFormatter));
+        } catch (Exception e) {
+            holder.tvApplyDate.setText("Nộp ngày: " + item.getApplicationTime());
+        }
+
+        // Tạm thời vẫn dùng ảnh placeholder
+        Glide.with(context)
+                .load(R.drawable.ic_person_placeholder)
+                .circleCrop()
+                .into(holder.ivApplicantAvatar);
 
         // Thiết lập sự kiện click cho toàn bộ item
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ReviewApplicationActivity.class);
+            // Gửi toàn bộ đối tượng ApplicantResponse qua Intent
             intent.putExtra("APPLICANT_DETAIL", item);
             context.startActivity(intent);
         });

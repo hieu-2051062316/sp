@@ -23,7 +23,6 @@ namespace HanoConnect.API.Data
         public DbSet<OpportunitySkill> OpportunitySkills { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
-        public DbSet<Notification> Notifications { get; set; } // DbSet cho Notification
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +53,13 @@ namespace HanoConnect.API.Data
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Organization).WithOne(o => o.User).HasForeignKey<Organization>(o => o.UserId);
 
+            // Admin-Organization (one-to-many)
+            modelBuilder.Entity<Organization>()
+                .HasOne(o => o.VerifiedByAdmin)
+                .WithMany(u => u.VerifiedOrganizations)
+                .HasForeignKey(o => o.VerifiedByAdminId)
+                .IsRequired(false);
+
             // Volunteer-Skill (many-to-many)
             modelBuilder.Entity<VolunteerSkill>()
                 .HasOne(vs => vs.User).WithMany(u => u.VolunteerSkills).HasForeignKey(vs => vs.UserId);
@@ -77,13 +83,6 @@ namespace HanoConnect.API.Data
                 .HasOne(a => a.Opportunity).WithMany(o => o.Applications).HasForeignKey(a => a.OpportunityId);
             modelBuilder.Entity<Application>()
                 .HasOne(a => a.VolunteerUser).WithMany(u => u.Applications).HasForeignKey(a => a.VolunteerUserId);
-
-            // Cấu hình Notification
-            modelBuilder.Entity<Notification>()
-                .HasOne(n => n.User)
-                .WithMany(u => u.Notifications)
-                .HasForeignKey(n => n.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // Cấu hình các mối quan hệ cho Feedback (với NoAction để tránh lỗi vòng lặp)
             modelBuilder.Entity<Feedback>()

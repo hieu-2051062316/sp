@@ -1,7 +1,6 @@
 package com.example.hanoconnectapp;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 

@@ -5,10 +5,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-// Thêm các import còn thiếu cho tất cả các Fragment
 import com.example.hanoconnectapp.HomeFragment;
 import com.example.hanoconnectapp.fragments.FollowedFragment;
-import com.example.hanoconnectapp.fragments.NotificationFragment;
 import com.example.hanoconnectapp.fragments.ProfileFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
@@ -24,8 +22,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             case 1:
                 return new FollowedFragment();
             case 2:
-                return new NotificationFragment();
-            case 3:
                 return new ProfileFragment();
             case 0:
             default:
@@ -35,6 +31,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 4; // Số lượng tab
+        // Chỉ còn 3 tab
+        return 3;
     }
 }

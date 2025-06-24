@@ -13,22 +13,17 @@ namespace HanoConnect.API.Services
     public class ApplicationService : IApplicationService
     {
         private readonly IApplicationRepository _applicationRepository;
-        private readonly INotificationService _notificationService;
         private readonly ApplicationDbContext _context;
 
-        public ApplicationService(
-            IApplicationRepository applicationRepository,
-            ApplicationDbContext context,
-            INotificationService notificationService)
+        // Đã loại bỏ INotificationService khỏi constructor
+        public ApplicationService(IApplicationRepository applicationRepository, ApplicationDbContext context)
         {
             _applicationRepository = applicationRepository;
             _context = context;
-            _notificationService = notificationService;
         }
 
         public async Task<(Application? application, string? errorMessage)> CreateApplicationAsync(ApplyDto applyDto)
         {
-            // Kiem tra xem nguoi dung da ung tuyen co hoi nay chua
             var existingApplication = await _applicationRepository.FindByUserAndOpportunityAsync(applyDto.VolunteerUserId, applyDto.OpportunityId);
             if (existingApplication != null)
             {
@@ -48,26 +43,13 @@ namespace HanoConnect.API.Services
             await _applicationRepository.AddAsync(application);
             await _applicationRepository.SaveChangesAsync();
 
-            // Lay thong tin de tao notification
-            var opportunity = await _context.Opportunities
-                                            .Include(o => o.Organization)
-                                            .FirstOrDefaultAsync(o => o.OpportunityId == applyDto.OpportunityId);
-            if (opportunity != null)
-            {
-                // Gui thong bao cho To chuc
-                var message = $"Có ứng viên mới cho cơ hội '{opportunity.Title}'.";
-                await _notificationService.CreateNotificationAsync(opportunity.Organization.UserId, message);
-            }
-
+            // Không còn logic tạo thông báo
             return (application, null);
         }
 
         public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string newStatus)
         {
-            var application = await _context.Applications
-                .Include(a => a.Opportunity) // Join để lấy tên cơ hội
-                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
-
+            var application = await _applicationRepository.GetByIdAsync(applicationId);
             if (application == null)
             {
                 return false;
@@ -75,17 +57,9 @@ namespace HanoConnect.API.Services
 
             application.Status = newStatus;
             _applicationRepository.Update(application);
-            var success = await _applicationRepository.SaveChangesAsync();
 
-            if (success)
-            {
-                // Gui thong bao cho Tinh nguyen vien
-                var statusText = newStatus == "Accepted" ? "chấp nhận" : "từ chối";
-                var message = $"Đơn ứng tuyển của bạn cho cơ hội '{application.Opportunity.Title}' đã được {statusText}.";
-                await _notificationService.CreateNotificationAsync(application.VolunteerUserId, message);
-            }
-
-            return success;
+            // Không còn logic tạo thông báo
+            return await _applicationRepository.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<ApplicantDto>> GetApplicantsForOpportunityAsync(int opportunityId)

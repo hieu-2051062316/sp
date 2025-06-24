@@ -24,21 +24,17 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.view_pager);
 
-        // Lấy Intent đã mở Activity này.
         Intent intent = getIntent();
-        // Lấy vai trò từ Intent, nếu không có thì mặc định là "VOLUNTEER".
         String userRole = intent.getStringExtra("USER_ROLE");
         if (userRole == null) {
-            userRole = "VOLUNTEER"; // Giá trị mặc định an toàn.
+            userRole = "VOLUNTEER";
         }
 
-        // Thiết lập giao diện dựa trên vai trò nhận được.
         setupUIForRole(userRole);
     }
 
     private void setupUIForRole(String role) {
         FragmentStateAdapter adapter;
-        // Dùng equalsIgnoreCase để so sánh chuỗi không phân biệt hoa thường.
         if ("Organization".equalsIgnoreCase(role)) {
             adapter = new OrganizationViewPagerAdapter(this);
             viewPager.setAdapter(adapter);
@@ -60,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
                     tab.setIcon(R.drawable.ic_star);
                     break;
                 case 2:
-                    tab.setIcon(R.drawable.ic_notification);
-                    break;
-                case 3:
                     tab.setIcon(R.drawable.ic_person);
                     break;
             }
@@ -76,12 +69,9 @@ public class MainActivity extends AppCompatActivity {
                     tab.setIcon(R.drawable.ic_home_logo);
                     break;
                 case 1:
-                    tab.setIcon(R.drawable.ic_star);
+                    tab.setIcon(R.drawable.ic_campaign); // Icon cho mục Chiến dịch
                     break;
                 case 2:
-                    tab.setIcon(R.drawable.ic_notification);
-                    break;
-                case 3:
                     tab.setIcon(R.drawable.ic_person);
                     break;
             }

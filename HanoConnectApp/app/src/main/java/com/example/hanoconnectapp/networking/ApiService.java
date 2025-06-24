@@ -6,7 +6,6 @@ import com.example.hanoconnectapp.models.Cause;
 import com.example.hanoconnectapp.models.LoginRequest;
 import com.example.hanoconnectapp.models.LoginResponse;
 import com.example.hanoconnectapp.models.MyApplicationResponse;
-import com.example.hanoconnectapp.models.NotificationResponse;
 import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 import com.example.hanoconnectapp.models.OrganizationProfileResponse;
@@ -77,9 +76,4 @@ public interface ApiService {
 
     @GET("api/organizations/{orgId}/profile")
     Call<OrganizationProfileResponse> getOrganizationProfile(@Path("orgId") int orgId);
-
-
-    // API lấy thông báo của người dùng
-    @GET("api/notifications/user/{userId}")
-    Call<List<NotificationResponse>> getNotificationsForUser(@Path("userId") int userId);
 }

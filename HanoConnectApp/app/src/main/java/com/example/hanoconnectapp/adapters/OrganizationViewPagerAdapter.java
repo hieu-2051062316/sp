@@ -7,7 +7,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.hanoconnectapp.fragments.CampaignsFragment;
 import com.example.hanoconnectapp.fragments.DashboardFragment;
-import com.example.hanoconnectapp.fragments.OrgNotificationFragment; // Sửa lại import
 import com.example.hanoconnectapp.fragments.OrgProfileFragment;
 
 public class OrganizationViewPagerAdapter extends FragmentStateAdapter {
@@ -23,8 +22,6 @@ public class OrganizationViewPagerAdapter extends FragmentStateAdapter {
             case 1:
                 return new CampaignsFragment();
             case 2:
-                return new OrgNotificationFragment();
-            case 3:
                 return new OrgProfileFragment();
             case 0:
             default:
@@ -34,6 +31,7 @@ public class OrganizationViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 4;
+        // Chỉ còn 3 tab
+        return 3;
     }
 }

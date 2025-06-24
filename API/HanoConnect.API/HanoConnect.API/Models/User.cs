@@ -36,21 +36,14 @@ namespace HanoConnect.API.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
-        // Navigation properties cho các mối quan hệ
+        // Navigation properties
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public Organization? Organization { get; set; }
         public ICollection<VolunteerSkill> VolunteerSkills { get; set; } = new List<VolunteerSkill>();
         public ICollection<VolunteerCause> VolunteerCauses { get; set; } = new List<VolunteerCause>();
         public ICollection<Application> Applications { get; set; } = new List<Application>();
-
-        // Navigation property cho Notification
-        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-
-        // Navigation properties cho Feedback
         public ICollection<Feedback> GivenFeedbacks { get; set; } = new List<Feedback>();
         public ICollection<Feedback> ReceivedFeedbacksAsRatedUser { get; set; } = new List<Feedback>();
-
-        // Navigation property cho việc Admin xác thực tổ chức
         public ICollection<Organization> VerifiedOrganizations { get; set; } = new List<Organization>();
     }
 }

@@ -1,24 +1,36 @@
 package com.example.hanoconnectapp.networking;
 
+import com.example.hanoconnectapp.models.ApplicantResponse;
+import com.example.hanoconnectapp.models.ApplyRequest;
+import com.example.hanoconnectapp.models.Cause;
+import com.example.hanoconnectapp.models.LoginRequest;
+import com.example.hanoconnectapp.models.LoginResponse;
+import com.example.hanoconnectapp.models.MyApplicationResponse;
+import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
-<<<<<<< Updated upstream
-=======
 import com.example.hanoconnectapp.models.OrganizationProfileResponse;
 import com.example.hanoconnectapp.models.RegisterRequest;
 import com.example.hanoconnectapp.models.SkillDto;
 import com.example.hanoconnectapp.models.UpdateApplicationStatusRequest;
 import com.example.hanoconnectapp.models.VolunteerProfileResponse;
->>>>>>> Stashed changes
+import com.example.hanoconnectapp.models.VolunteerProfileUpdateRequest;
 
 import java.util.List;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
+
+    // APIs cho Opportunity
     @GET("api/Opportunity")
     Call<List<OpportunityResponseDto>> getOpportunities();
-<<<<<<< Updated upstream
-=======
 
     @GET("api/Opportunity/{id}")
     Call<OpportunityResponseDto> getOpportunityById(@Path("id") int opportunityId);
@@ -63,11 +75,13 @@ public interface ApiService {
     Call<List<SkillDto>> getSkills();
 
 
-    // API lấy thông tin Profile
+    // API lấy và cập nhật thông tin Profile
     @GET("api/users/{userId}/profile")
     Call<VolunteerProfileResponse> getVolunteerProfile(@Path("userId") int userId);
 
+    @PUT("api/users/{userId}/profile")
+    Call<ResponseBody> updateVolunteerProfile(@Path("userId") int userId, @Body VolunteerProfileUpdateRequest request);
+
     @GET("api/organizations/{orgId}/profile")
     Call<OrganizationProfileResponse> getOrganizationProfile(@Path("orgId") int orgId);
->>>>>>> Stashed changes
 }

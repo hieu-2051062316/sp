@@ -1,4 +1,4 @@
-﻿using HanoConnect.API.DTOs; // Cần cho DTO
+﻿using HanoConnect.API.DTOs;
 using HanoConnect.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,8 +13,10 @@ namespace HanoConnect.API.Interfaces
         Task<bool> UpdateUserAsync(User user);
         Task<bool> DeleteUserAsync(int id);
         Task<User?> GetUserByEmailAsync(string email);
-
-        // Lấy thông tin profile của một Volunteer
         Task<VolunteerProfileDto?> GetVolunteerProfileAsync(int userId);
+        Task<(User? user, string? errorMessage)> RegisterUserAsync(RegisterRequestDto registerDto);
+
+        // Xử lý logic cập nhật profile
+        Task<(bool success, string? errorMessage)> UpdateVolunteerProfileAsync(int userId, VolunteerProfileUpdateDto updateDto);
     }
 }

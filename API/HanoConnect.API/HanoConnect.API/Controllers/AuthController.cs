@@ -20,6 +20,26 @@ namespace HanoConnect.API.Controllers
             _context = context;
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var (user, errorMessage) = await _userService.RegisterUserAsync(registerDto);
+
+            if (user == null)
+            {
+                // Trả về lỗi 400 Bad Request nếu có lỗi từ service
+                return BadRequest(new { message = errorMessage });
+            }
+
+            // Trả về 201 Created khi đăng ký thành công
+            return StatusCode(201, new { message = "Đăng ký thành công." });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
         {
@@ -39,7 +59,7 @@ namespace HanoConnect.API.Controllers
                 return Unauthorized("Email hoặc mật khẩu không đúng.");
             }
 
-            // *** CHÚ Ý: BỎ QUA HOÀN TOÀN VIỆC KIỂM TRA MẬT KHẨU ĐỂ TEST ***
+            // Tạm thời bỏ qua kiểm tra mật khẩu để test
             var userRole = user.UserRoles?.FirstOrDefault()?.Role?.RoleName ?? "Volunteer";
 
             var response = new LoginResponseDto
@@ -50,7 +70,6 @@ namespace HanoConnect.API.Controllers
                 Role = userRole
             };
 
-            // --- BẮT ĐẦU THAY ĐỔI ---
             // Nếu người dùng là một tổ chức, tìm và đính kèm OrganizationId
             if (userRole.Equals("Organization", System.StringComparison.OrdinalIgnoreCase))
             {
@@ -61,7 +80,6 @@ namespace HanoConnect.API.Controllers
                     response.OrganizationId = organization.OrganizationId;
                 }
             }
-            // --- KẾT THÚC THAY ĐỔI ---
 
             return Ok(response);
         }

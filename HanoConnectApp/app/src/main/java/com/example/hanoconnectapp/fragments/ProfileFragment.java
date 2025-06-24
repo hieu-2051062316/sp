@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hanoconnectapp.EditProfileActivity;
 import com.example.hanoconnectapp.GuestScreenActivity;
 import com.example.hanoconnectapp.R;
 import com.example.hanoconnectapp.models.VolunteerProfileResponse;
@@ -55,10 +56,18 @@ public class ProfileFragment extends Fragment {
         tvLogout = view.findViewById(R.id.tvLogout);
 
         // Thiết lập sự kiện
-        tvLogout.setOnClickListener(v -> handleLogout());
-        tvUpdateInfo.setOnClickListener(v -> Toast.makeText(getContext(), "Chức năng đang phát triển", Toast.LENGTH_SHORT).show());
+        tvUpdateInfo.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), EditProfileActivity.class);
+            startActivity(intent);
+        });
 
-        // Tải dữ liệu profile
+        tvLogout.setOnClickListener(v -> handleLogout());
+    }
+
+    // Tải lại dữ liệu khi quay lại màn hình này
+    @Override
+    public void onResume() {
+        super.onResume();
         fetchProfile();
     }
 
@@ -96,6 +105,8 @@ public class ProfileFragment extends Fragment {
         Intent intent = new Intent(getActivity(), GuestScreenActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        getActivity().finish();
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
     }
 }

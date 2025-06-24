@@ -51,6 +51,29 @@ namespace HanoConnect.API.Controllers
             return Ok(profile);
         }
 
+        // PUT: api/Users/5/profile
+        // Endpoint để cập nhật Profile
+        [HttpPut("{id}/profile")]
+        public async Task<IActionResult> UpdateVolunteerProfile(int id, [FromBody] VolunteerProfileUpdateDto updateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var (success, errorMessage) = await _userService.UpdateVolunteerProfileAsync(id, updateDto);
+
+            if (!success)
+            {
+                if (errorMessage != null && errorMessage.Contains("Không tìm thấy"))
+                    return NotFound(new { message = errorMessage });
+
+                return BadRequest(new { message = errorMessage });
+            }
+
+            return NoContent(); // Thành công
+        }
+
         // POST: api/Users
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)

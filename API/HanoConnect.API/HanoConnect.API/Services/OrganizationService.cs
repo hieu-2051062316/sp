@@ -3,10 +3,10 @@ using HanoConnect.API.DTOs;
 using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
 
 namespace HanoConnect.API.Services
 {
@@ -16,7 +16,10 @@ namespace HanoConnect.API.Services
         private readonly IUserRepository _userRepository;
         private readonly ApplicationDbContext _context;
 
-        public OrganizationService(IOrganizationRepository organizationRepository, IUserRepository userRepository, ApplicationDbContext context)
+        public OrganizationService(
+            IOrganizationRepository organizationRepository,
+            IUserRepository userRepository,
+            ApplicationDbContext context)
         {
             _organizationRepository = organizationRepository;
             _userRepository = userRepository;
@@ -54,6 +57,7 @@ namespace HanoConnect.API.Services
                 return false;
             }
 
+            // Cập nhật các thuộc tính
             existingOrganization.OrganizationName = organization.OrganizationName;
             existingOrganization.ContactPerson = organization.ContactPerson;
             existingOrganization.ContactPhone = organization.ContactPhone;
@@ -64,16 +68,6 @@ namespace HanoConnect.API.Services
             existingOrganization.VerifiedByAdminId = organization.VerifiedByAdminId;
             existingOrganization.VerificationTime = organization.VerificationTime;
             existingOrganization.UpdatedAt = DateTime.UtcNow;
-
-            if (existingOrganization.UserId != organization.UserId)
-            {
-                var newUserExists = await _userRepository.GetByIdAsync(organization.UserId);
-                if (newUserExists == null)
-                {
-                    return false;
-                }
-                existingOrganization.UserId = organization.UserId;
-            }
 
             _organizationRepository.Update(existingOrganization);
             return await _organizationRepository.SaveChangesAsync();
@@ -100,14 +94,13 @@ namespace HanoConnect.API.Services
             return await _organizationRepository.GetOrganizationByNameAsync(organizationName);
         }
 
-        // Lấy thông tin chi tiết cho trang Profile của Organization
         public async Task<OrganizationProfileDto?> GetOrganizationProfileAsync(int organizationId)
         {
             var organization = await _context.Organizations
                 .Where(o => o.OrganizationId == organizationId)
-                .Include(o => o.User) // Join để lấy email
-                .Include(o => o.Opportunities) // Join để đếm
-                    .ThenInclude(opp => opp.Applications) // Join sâu hơn để đếm đơn
+                .Include(o => o.User)
+                .Include(o => o.Opportunities)
+                    .ThenInclude(opp => opp.Applications)
                 .FirstOrDefaultAsync();
 
             if (organization == null) return null;
@@ -116,7 +109,7 @@ namespace HanoConnect.API.Services
             {
                 OrganizationId = organization.OrganizationId,
                 OrganizationName = organization.OrganizationName,
-                Email = organization.User?.Email, // Lấy email từ user liên kết
+                Email = organization.User?.Email,
                 Description = organization.Description,
                 Address = organization.Address,
                 Website = organization.Website,
@@ -125,6 +118,27 @@ namespace HanoConnect.API.Services
             };
 
             return profileDto;
+        }
+
+        // Lấy danh sách các ứng viên gần đây
+        public async Task<IEnumerable<RecentApplicantDto>> GetRecentApplicantsAsync(int organizationId, int count = 5)
+        {
+            var recentApplicants = await _context.Applications
+                .Where(app => app.Opportunity.OrganizationId == organizationId)
+                .OrderByDescending(app => app.ApplicationTime)
+                .Include(app => app.VolunteerUser)
+                .Include(app => app.Opportunity)
+                .Select(app => new RecentApplicantDto
+                {
+                    ApplicationId = app.ApplicationId,
+                    VolunteerName = app.VolunteerUser.FullName,
+                    OpportunityTitle = app.Opportunity.Title,
+                    ApplicationTime = app.ApplicationTime
+                })
+                .Take(count)
+                .ToListAsync();
+
+            return recentApplicants;
         }
     }
 }

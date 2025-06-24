@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hanoconnectapp.R;
@@ -35,6 +36,7 @@ public class FollowedFragment extends Fragment {
     private FollowedAdapter followedAdapter;
     private List<MyApplicationResponse> followedList = new ArrayList<>();
     private ProgressBar progressBar;
+    private TextView tvNoResults;
     private SessionManager sessionManager;
     private ApiService apiService;
 
@@ -53,17 +55,16 @@ public class FollowedFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Ánh xạ và khởi tạo
         rvFollowed = view.findViewById(R.id.rvOpportunities);
         progressBar = view.findViewById(R.id.progressBar);
+        tvNoResults = view.findViewById(R.id.tvNoResults); // Ánh xạ view
         sessionManager = new SessionManager(getContext());
         apiService = RetrofitClient.getApiService();
 
+        tvNoResults.setText("Bạn chưa ứng tuyển vào cơ hội nào"); // Tùy chỉnh text
         setupRecyclerView();
-        fetchMyApplications();
     }
 
-    // Ghi đè onResume để tự động cập nhật lại danh sách khi người dùng quay lại tab này
     @Override
     public void onResume() {
         super.onResume();
@@ -80,6 +81,9 @@ public class FollowedFragment extends Fragment {
 
     private void fetchMyApplications() {
         progressBar.setVisibility(View.VISIBLE);
+        rvFollowed.setVisibility(View.GONE);
+        tvNoResults.setVisibility(View.GONE);
+
         int volunteerId = sessionManager.getUserId();
 
         if (volunteerId == -1) {
@@ -96,11 +100,14 @@ public class FollowedFragment extends Fragment {
                     followedList.clear();
                     followedList.addAll(response.body());
                     followedAdapter.notifyDataSetChanged();
+
                     if(followedList.isEmpty()) {
-                        Toast.makeText(getContext(), "Bạn chưa ứng tuyển vào cơ hội nào.", Toast.LENGTH_SHORT).show();
+                        tvNoResults.setVisibility(View.VISIBLE);
+                    } else {
+                        rvFollowed.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    Toast.makeText(getContext(), "Không thể tải danh sách theo dõi.", Toast.LENGTH_SHORT).show();
+                    if(isAdded()) Toast.makeText(getContext(), "Không thể tải danh sách theo dõi.", Toast.LENGTH_SHORT).show();
                 }
             }
 

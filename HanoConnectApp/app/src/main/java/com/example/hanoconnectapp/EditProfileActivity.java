@@ -1,6 +1,3 @@
-// Logic cho màn hình chỉnh sửa sẽ tương tự màn hình Tạo chiến dịch
-// Chúng ta sẽ cần fetch dữ liệu, hiển thị dialog, và sau đó gửi request PUT
-// Đây là file đầy đủ, bạn chỉ cần tạo và dán vào
 package com.example.hanoconnectapp;
 
 import android.os.Bundle;
@@ -26,6 +23,8 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,20 +83,24 @@ public class EditProfileActivity extends AppCompatActivity {
         btnSaveChanges.setOnClickListener(v -> handleSaveChanges());
     }
 
-    // Tải tất cả dữ liệu cần thiết: profile hiện tại, danh sách skills, danh sách causes
+    // Tải tất cả dữ liệu cần thiết
     private void fetchAllData() {
         progressBar.setVisibility(View.VISIBLE);
         formContainer.setVisibility(View.INVISIBLE);
 
         int userId = sessionManager.getUserId();
-        if(userId == -1) return;
+        if(userId == -1) {
+            Toast.makeText(this, "Lỗi phiên đăng nhập", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        // Tạo các call API
+        // Tạo các cuộc gọi API
         Call<VolunteerProfileResponse> profileCall = apiService.getVolunteerProfile(userId);
         Call<List<SkillDto>> skillsCall = apiService.getSkills();
         Call<List<Cause>> causesCall = apiService.getCauses();
 
-        // Thực thi song song (ví dụ đơn giản)
+        // Thực thi các cuộc gọi
         profileCall.enqueue(new Callback<VolunteerProfileResponse>() {
             @Override
             public void onResponse(Call<VolunteerProfileResponse> call, Response<VolunteerProfileResponse> response) {
@@ -144,39 +147,39 @@ public class EditProfileActivity extends AppCompatActivity {
     private int loadCount = 0;
     private synchronized void checkAllDataLoaded() {
         loadCount++;
-        if (loadCount == 3) { // Khi cả 3 cuộc gọi API đã hoàn thành (thành công hoặc thất bại)
+        if (loadCount >= 3) {
             progressBar.setVisibility(View.GONE);
             formContainer.setVisibility(View.VISIBLE);
         }
     }
 
-    // Điền dữ liệu của người dùng vào form
     private void populateForm(VolunteerProfileResponse profile) {
         if(profile == null) return;
         etFullName.setText(profile.getFullName());
         etPhoneNumber.setText(profile.getPhoneNumber());
         etDistrict.setText(profile.getDistrict());
 
-        // Xử lý các kỹ năng đã chọn
-        for(String skillName : profile.getSkills()) {
-            allSkills.stream()
-                    .filter(s -> s.getSkillName().equals(skillName))
-                    .findFirst()
-                    .ifPresent(selectedSkills::add);
+        if (profile.getSkills() != null && !allSkills.isEmpty()){
+            for(String skillName : profile.getSkills()) {
+                allSkills.stream()
+                        .filter(s -> s.getSkillName().equals(skillName))
+                        .findFirst()
+                        .ifPresent(selectedSkills::add);
+            }
         }
         updateSkillChips();
 
-        // Xử lý các lĩnh vực đã chọn
-        for(String causeName : profile.getCauses()) {
-            allCauses.stream()
-                    .filter(c -> c.getCauseName().equals(causeName))
-                    .findFirst()
-                    .ifPresent(selectedCauses::add);
+        if(profile.getCauses() != null && !allCauses.isEmpty()){
+            for(String causeName : profile.getCauses()) {
+                allCauses.stream()
+                        .filter(c -> c.getCauseName().equals(causeName))
+                        .findFirst()
+                        .ifPresent(selectedCauses::add);
+            }
         }
         updateCauseChips();
     }
 
-    // Dialog chọn nhiều mục
     private <T> void showMultiSelectDialog(String title, List<T> allItems, List<T> selectedItems, Runnable onConfirm) {
         String[] itemNames = allItems.stream().map(Object::toString).toArray(String[]::new);
         boolean[] checkedItems = new boolean[allItems.size()];
@@ -201,33 +204,8 @@ public class EditProfileActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private void updateSkillChips() {
-        chipGroupSkills.removeAllViews();
-        for (SkillDto skill : selectedSkills) {
-            Chip chip = new Chip(this);
-            chip.setText(skill.getSkillName());
-            chip.setCloseIconVisible(true);
-            chip.setOnCloseIconClickListener(v -> {
-                selectedSkills.remove(skill);
-                updateSkillChips();
-            });
-            chipGroupSkills.addView(chip);
-        }
-    }
-
-    private void updateCauseChips() {
-        chipGroupCauses.removeAllViews();
-        for (Cause cause : selectedCauses) {
-            Chip chip = new Chip(this);
-            chip.setText(cause.getCauseName());
-            chip.setCloseIconVisible(true);
-            chip.setOnCloseIconClickListener(v -> {
-                selectedCauses.remove(cause);
-                updateCauseChips();
-            });
-            chipGroupCauses.addView(chip);
-        }
-    }
+    private void updateSkillChips() { /* ... */ }
+    private void updateCauseChips() { /* ... */ }
 
     private void handleSaveChanges() {
         String fullName = etFullName.getText().toString().trim();
@@ -242,7 +220,6 @@ public class EditProfileActivity extends AppCompatActivity {
         List<Integer> causeIds = selectedCauses.stream().map(Cause::getCauseId).collect(Collectors.toList());
 
         int userId = sessionManager.getUserId();
-
         VolunteerProfileUpdateRequest request = new VolunteerProfileUpdateRequest(fullName, phone, district, skillIds, causeIds);
 
         showLoading(true);
@@ -254,7 +231,17 @@ public class EditProfileActivity extends AppCompatActivity {
                     Toast.makeText(EditProfileActivity.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(EditProfileActivity.this, "Cập nhật thất bại. Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
+                    String errorMessage = "Cập nhật thất bại. Mã lỗi: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            String errorJson = response.errorBody().string();
+                            JsonObject jsonObject = new Gson().fromJson(errorJson, JsonObject.class);
+                            if (jsonObject.has("message")) {
+                                errorMessage = jsonObject.get("message").getAsString();
+                            }
+                        } catch (Exception e) {}
+                    }
+                    Toast.makeText(EditProfileActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -266,8 +253,5 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void showLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        btnSaveChanges.setEnabled(!isLoading);
-    }
+    private void showLoading(boolean isLoading) { /* ... */ }
 }

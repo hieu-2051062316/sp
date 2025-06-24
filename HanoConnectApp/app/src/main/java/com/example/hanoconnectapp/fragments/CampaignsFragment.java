@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.hanoconnectapp.R;
@@ -34,6 +35,7 @@ public class CampaignsFragment extends Fragment {
     private OrgCampaignAdapter orgCampaignAdapter;
     private List<OpportunityResponseDto> campaignList = new ArrayList<>();
     private ProgressBar progressBar;
+    private TextView tvNoResults;
     private SessionManager sessionManager;
     private ApiService apiService;
 
@@ -53,11 +55,18 @@ public class CampaignsFragment extends Fragment {
 
         rvCampaigns = view.findViewById(R.id.rvCampaigns);
         progressBar = view.findViewById(R.id.progressBar);
+        tvNoResults = view.findViewById(R.id.tvNoResults); // Ánh xạ view
         sessionManager = new SessionManager(getContext());
         apiService = RetrofitClient.getApiService();
 
+        tvNoResults.setText("Chưa có chiến dịch nào được đăng tải"); // Tùy chỉnh text
         setupRecyclerView();
-        fetchCampaigns(); // Gọi API thật
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchCampaigns();
     }
 
     private void setupRecyclerView() {
@@ -68,6 +77,9 @@ public class CampaignsFragment extends Fragment {
 
     private void fetchCampaigns() {
         progressBar.setVisibility(View.VISIBLE);
+        rvCampaigns.setVisibility(View.GONE);
+        tvNoResults.setVisibility(View.GONE);
+
         int organizationId = sessionManager.getOrganizationId();
 
         if (organizationId == -1) {
@@ -80,20 +92,29 @@ public class CampaignsFragment extends Fragment {
             @Override
             public void onResponse(Call<List<OpportunityResponseDto>> call, Response<List<OpportunityResponseDto>> response) {
                 progressBar.setVisibility(View.GONE);
-                if (response.isSuccessful() && response.body() != null) {
+                if (isAdded() && response.isSuccessful() && response.body() != null) {
                     campaignList.clear();
                     campaignList.addAll(response.body());
                     orgCampaignAdapter.notifyDataSetChanged();
+
+                    // Hiển thị thông báo nếu danh sách trống
+                    if (campaignList.isEmpty()) {
+                        tvNoResults.setVisibility(View.VISIBLE);
+                    } else {
+                        rvCampaigns.setVisibility(View.VISIBLE);
+                    }
                 } else {
-                    Toast.makeText(getContext(), "Không thể tải danh sách chiến dịch.", Toast.LENGTH_SHORT).show();
+                    if(isAdded()) Toast.makeText(getContext(), "Không thể tải danh sách chiến dịch.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<OpportunityResponseDto>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Lỗi kết nối.", Toast.LENGTH_SHORT).show();
-                Log.e("CampaignsFragment", "API call failed: ", t);
+                if(isAdded()) {
+                    Toast.makeText(getContext(), "Lỗi kết nối.", Toast.LENGTH_SHORT).show();
+                    Log.e("CampaignsFragment", "API call failed: ", t);
+                }
             }
         });
     }

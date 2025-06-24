@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout cho màn hình xem chi tiết một đơn ứng tuyển. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/white"
+    android:background="#F5F5F5"
     tools:context=".ReviewApplicationActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -14,80 +13,151 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:navigationIcon="@drawable/ic_arrow_back"
-        tools:title="Hồ sơ ứng viên" />
+        app:title="Hồ sơ ứng viên" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <ImageView
-            android:id="@+id/ivApplicantAvatar"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_gravity="center_horizontal"
-            tools:src="@drawable/ic_person_placeholder" />
-
-        <TextView
-            android:id="@+id/tvApplicantName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:textColor="@android:color/black"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            tools:text="Nguyễn Văn A" />
-
-        <TextView
-            android:id="@+id/tvApplyDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:textColor="#757575"
-            android:textSize="14sp"
-            tools:text="Nộp ngày: 23/06/2025" />
-
-        <Button
-            android:id="@+id/btnViewCv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:text="Xem CV (Google Drive)"
-            app:icon="@drawable/ic_link" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReject"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="55dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:text="Từ chối"
-                android:textColor="#D32F2F"
-                app:strokeColor="#D32F2F" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="24dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAccept"
-                android:layout_width="0dp"
-                android:layout_height="55dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:backgroundTint="#4CAF50"
-                android:text="Chấp nhận" />
+                <ImageView
+                    android:id="@+id/ivApplicantAvatar"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    tools:src="@drawable/ic_person_placeholder" />
+
+                <TextView
+                    android:id="@+id/tvApplicantName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    tools:text="Tình nguyện viên Mới" />
+
+                <TextView
+                    android:id="@+id/tvApplyDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#757575"
+                    android:textSize="14sp"
+                    tools:text="Nộp ngày: 24/06/2025 11:49" />
+
+                <Button
+                    android:id="@+id/btnViewCv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Xem CV (Google Drive)"
+                    app:icon="@drawable/ic_link" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="THÔNG TIN CHI TIẾT"
+                android:textColor="#555555"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="#424242"
+                        android:layout_marginBottom="8dp"
+                        tools:text="Email: volunteer@example.com" />
+
+                    <TextView
+                        android:id="@+id/tvDistrict"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="#424242"
+                        android:layout_marginBottom="8dp"
+                        tools:text="Quận/Huyện: Cầu Giấy" />
+
+                    <TextView
+                        android:id="@+id/tvSkills"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="#424242"
+                        android:layout_marginBottom="8dp"
+                        tools:text="Kỹ năng: Dạy học, IT, Thiết kế" />
+
+                    <TextView
+                        android:id="@+id/tvCauses"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="#424242"
+                        android:layout_marginBottom="0dp"
+                        tools:text="Quan tâm: Giáo dục, Môi trường" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:elevation="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReject"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="Từ chối"
+            android:textColor="#D32F2F"
+            app:strokeColor="#D32F2F" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAccept"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="#4CAF50"
+            android:text="Chấp nhận" />
     </LinearLayout>
+
 </LinearLayout>

@@ -2,6 +2,7 @@ package com.example.hanoconnectapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -21,9 +22,9 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
-    private MaterialButton btnLogin;
+    private MaterialButton btnLogin, btnGoToRegister;
     private ProgressBar progressBar;
-    private SessionManager sessionManager; // Khai báo session manager
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,11 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        // progressBar = findViewById(R.id.progressBar_login); // Bạn cần thêm ID này vào layout nếu muốn dùng
+        btnGoToRegister = findViewById(R.id.btnRegister);
+        // progressBar = findViewById(R.id.progressBar_login); // Cần thêm ID này vào layout nếu muốn dùng
 
-        sessionManager = new SessionManager(getApplicationContext()); // Khởi tạo session manager
+        // Khởi tạo session manager
+        sessionManager = new SessionManager(getApplicationContext());
 
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
@@ -45,15 +48,19 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Vui lòng nhập đầy đủ email và mật khẩu", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             performLogin(email, password);
+        });
+
+        // Thêm sự kiện click cho nút đăng ký
+        btnGoToRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, ChooseRoleActivity.class);
+            startActivity(intent);
         });
     }
 
     private void performLogin(String email, String password) {
-        // Ví dụ về cách hiển thị loading
-        // btnLogin.setEnabled(false);
         // if(progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        btnLogin.setEnabled(false);
 
         ApiService apiService = RetrofitClient.getApiService();
         LoginRequest loginRequest = new LoginRequest(email, password);
@@ -62,9 +69,8 @@ public class LoginActivity extends AppCompatActivity {
         call.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                // Ví dụ về cách ẩn loading
-                // btnLogin.setEnabled(true);
                 // if(progressBar != null) progressBar.setVisibility(View.GONE);
+                btnLogin.setEnabled(true);
 
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
@@ -74,11 +80,12 @@ public class LoginActivity extends AppCompatActivity {
                     // Lưu thông tin phiên đăng nhập, bao gồm cả organizationId
                     sessionManager.createLoginSession(loginResponse.getUserId(), loginResponse.getOrganizationId());
 
-                    // Chuyển sang MainActivity và "gửi kèm" vai trò của người dùng
+                    // Chuyển sang MainActivity và gửi kèm vai trò của người dùng
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.putExtra("USER_ROLE", loginResponse.getRole());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                    finish(); // Đóng LoginActivity để người dùng không quay lại được
+                    finish();
                 } else {
                     Toast.makeText(LoginActivity.this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show();
                 }
@@ -86,9 +93,8 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                // Ví dụ về cách ẩn loading
-                // btnLogin.setEnabled(true);
                 // if(progressBar != null) progressBar.setVisibility(View.GONE);
+                btnLogin.setEnabled(true);
                 Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

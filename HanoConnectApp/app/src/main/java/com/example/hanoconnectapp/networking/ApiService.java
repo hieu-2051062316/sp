@@ -9,6 +9,7 @@ import com.example.hanoconnectapp.models.MyApplicationResponse;
 import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 import com.example.hanoconnectapp.models.OrganizationProfileResponse;
+import com.example.hanoconnectapp.models.RecentApplicantResponse;
 import com.example.hanoconnectapp.models.RegisterRequest;
 import com.example.hanoconnectapp.models.SkillDto;
 import com.example.hanoconnectapp.models.UpdateApplicationStatusRequest;
@@ -67,7 +68,7 @@ public interface ApiService {
     Call<ResponseBody> register(@Body RegisterRequest registerRequest);
 
 
-    // APIs lấy danh mục (Causes, Skills)
+    // APIs lấy danh mục
     @GET("api/Causes")
     Call<List<Cause>> getCauses();
 
@@ -75,7 +76,7 @@ public interface ApiService {
     Call<List<SkillDto>> getSkills();
 
 
-    // API lấy và cập nhật thông tin Profile
+    // API cho Profile
     @GET("api/users/{userId}/profile")
     Call<VolunteerProfileResponse> getVolunteerProfile(@Path("userId") int userId);
 
@@ -84,4 +85,8 @@ public interface ApiService {
 
     @GET("api/organizations/{orgId}/profile")
     Call<OrganizationProfileResponse> getOrganizationProfile(@Path("orgId") int orgId);
+
+    // API cho Dashboard của Tổ chức
+    @GET("api/organizations/{orgId}/recent-applicants")
+    Call<List<RecentApplicantResponse>> getRecentApplicants(@Path("orgId") int orgId);
 }

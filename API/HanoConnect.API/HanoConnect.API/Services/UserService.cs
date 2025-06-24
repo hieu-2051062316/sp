@@ -3,6 +3,7 @@ using HanoConnect.API.DTOs;
 using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,21 +15,19 @@ namespace HanoConnect.API.Services
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IOrganizationRepository _organizationRepository;
-        private readonly INotificationService _notificationService;
         private readonly ApplicationDbContext _context;
 
+        // Constructor đã được dọn dẹp, không còn chứa các interface không cần thiết
         public UserService(
             IUserRepository userRepository,
             ApplicationDbContext context,
             IRoleRepository roleRepository,
-            IOrganizationRepository organizationRepository,
-            INotificationService notificationService)
+            IOrganizationRepository organizationRepository)
         {
             _userRepository = userRepository;
             _context = context;
             _roleRepository = roleRepository;
             _organizationRepository = organizationRepository;
-            _notificationService = notificationService;
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -62,6 +61,7 @@ namespace HanoConnect.API.Services
             existingUser.PhoneNumber = user.PhoneNumber;
             existingUser.DateOfBirth = user.DateOfBirth;
             existingUser.District = user.District;
+            existingUser.UpdatedAt = DateTime.UtcNow;
 
             _userRepository.Update(existingUser);
             return await _userRepository.SaveChangesAsync();
@@ -83,6 +83,7 @@ namespace HanoConnect.API.Services
             return await _userRepository.GetUserByEmailAsync(email);
         }
 
+        // Lấy thông tin chi tiết cho trang Profile của Volunteer
         public async Task<VolunteerProfileDto?> GetVolunteerProfileAsync(int userId)
         {
             var user = await _context.Users
@@ -110,34 +111,33 @@ namespace HanoConnect.API.Services
             return profileDto;
         }
 
-        // Xử lý logic đăng ký người dùng mới
+        // Logic đăng ký không còn tạo thông báo
         public async Task<(User? user, string? errorMessage)> RegisterUserAsync(RegisterRequestDto registerDto)
         {
-            // Kiểm tra email đã tồn tại chưa
             var existingUser = await _userRepository.GetUserByEmailAsync(registerDto.Email);
             if (existingUser != null)
             {
                 return (null, "Email đã được sử dụng.");
             }
 
-            // Tìm RoleId dựa trên chuỗi Role gửi lên
             var role = await _roleRepository.GetRoleByNameAsync(registerDto.Role);
             if (role == null)
             {
                 return (null, "Vai trò không hợp lệ.");
             }
 
-            // Băm mật khẩu (trong thực tế dùng thư viện như BCrypt.Net)
-            var hashedPassword = registerDto.Password; // Tạm thời không băm để dễ test
+            // Băm mật khẩu bằng BCrypt
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
 
             var user = new User
             {
                 Email = registerDto.Email,
                 PasswordHash = hashedPassword,
                 FullName = registerDto.FullName,
+                PhoneNumber = registerDto.PhoneNumber,
+                District = registerDto.District
             };
 
-            // Dùng transaction để đảm bảo tính toàn vẹn dữ liệu
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -151,7 +151,7 @@ namespace HanoConnect.API.Services
                 await _context.SaveChangesAsync();
 
                 // 3. Nếu là Organization, tạo bản ghi Organization
-                if (role.RoleName.Equals("Organization", System.StringComparison.OrdinalIgnoreCase))
+                if (role.RoleName.Equals("Organization", StringComparison.OrdinalIgnoreCase))
                 {
                     if (string.IsNullOrWhiteSpace(registerDto.OrganizationName))
                     {
@@ -162,30 +162,27 @@ namespace HanoConnect.API.Services
                     {
                         UserId = user.UserId,
                         OrganizationName = registerDto.OrganizationName,
-                        ContactPerson = user.FullName // Mặc định người liên hệ là người tạo tài khoản
+                        ContactPerson = user.FullName,
+                        Address = registerDto.Address,
+                        Website = registerDto.Website,
+                        Description = registerDto.Description
                     };
                     await _organizationRepository.AddAsync(organization);
                     await _organizationRepository.SaveChangesAsync();
                 }
 
-                // 4. Tạo thông báo chào mừng
-                var message = "Chào mừng bạn đến với HanoConnect! Hãy bắt đầu hành trình kết nối và cống hiến ngay hôm nay.";
-                await _notificationService.CreateNotificationAsync(user.UserId, message);
-
-                // Hoàn tất transaction
                 await transaction.CommitAsync();
-
                 return (user, null);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                // Log lỗi ra console của server để debug
-                System.Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
                 return (null, "Đã có lỗi xảy ra trong quá trình đăng ký.");
             }
         }
 
+        // Xử lý logic cập nhật profile
         public async Task<(bool success, string? errorMessage)> UpdateVolunteerProfileAsync(int userId, VolunteerProfileUpdateDto updateDto)
         {
             var user = await _context.Users
@@ -198,45 +195,43 @@ namespace HanoConnect.API.Services
                 return (false, "Không tìm thấy người dùng.");
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            // Cập nhật thông tin cơ bản
+            user.FullName = updateDto.FullName;
+            user.PhoneNumber = updateDto.PhoneNumber;
+            user.District = updateDto.District;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            // Xóa hết các kỹ năng và lĩnh vực cũ để thêm lại
+            _context.VolunteerSkills.RemoveRange(user.VolunteerSkills);
+            _context.VolunteerCauses.RemoveRange(user.VolunteerCauses);
+
+            // Thêm lại các kỹ năng mới từ danh sách ID
+            if (updateDto.SkillIds != null)
             {
-                user.FullName = updateDto.FullName;
-                user.PhoneNumber = updateDto.PhoneNumber;
-                user.District = updateDto.District;
-                user.UpdatedAt = System.DateTime.UtcNow;
-                _userRepository.Update(user);
-
-                var currentSkillIds = user.VolunteerSkills.Select(s => s.SkillId).ToList();
-                var skillsToRemove = user.VolunteerSkills.Where(s => !updateDto.SkillIds.Contains(s.SkillId)).ToList();
-                var skillIdsToAdd = updateDto.SkillIds.Where(id => !currentSkillIds.Contains(id)).ToList();
-
-                _context.VolunteerSkills.RemoveRange(skillsToRemove);
-                foreach (var skillId in skillIdsToAdd)
+                foreach (var skillId in updateDto.SkillIds)
                 {
                     _context.VolunteerSkills.Add(new VolunteerSkill { UserId = userId, SkillId = skillId });
                 }
+            }
 
-                var currentCauseIds = user.VolunteerCauses.Select(c => c.CauseId).ToList();
-                var causesToRemove = user.VolunteerCauses.Where(c => !updateDto.CauseIds.Contains(c.CauseId)).ToList();
-                var causeIdsToAdd = updateDto.CauseIds.Where(id => !currentCauseIds.Contains(id)).ToList();
-
-                _context.VolunteerCauses.RemoveRange(causesToRemove);
-                foreach (var causeId in causeIdsToAdd)
+            // Thêm lại các lĩnh vực mới từ danh sách ID
+            if (updateDto.CauseIds != null)
+            {
+                foreach (var causeId in updateDto.CauseIds)
                 {
                     _context.VolunteerCauses.Add(new VolunteerCause { UserId = userId, CauseId = causeId });
                 }
+            }
 
+            try
+            {
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
                 return (true, null);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                System.Console.WriteLine(ex);
-                return (false, "Đã có lỗi xảy ra khi cập nhật.");
+                Console.WriteLine(ex);
+                return (false, "Đã có lỗi xảy ra khi lưu vào cơ sở dữ liệu.");
             }
         }
     }

@@ -1,6 +1,10 @@
-﻿using HanoConnect.API.Interfaces;
+﻿using HanoConnect.API.Data;
+using HanoConnect.API.DTOs;
+using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HanoConnect.API.Services
@@ -8,12 +12,6 @@ namespace HanoConnect.API.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-<<<<<<< Updated upstream
-
-        public UserService(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-=======
         private readonly IRoleRepository _roleRepository;
         private readonly IOrganizationRepository _organizationRepository;
         private readonly INotificationService _notificationService;
@@ -31,7 +29,6 @@ namespace HanoConnect.API.Services
             _roleRepository = roleRepository;
             _organizationRepository = organizationRepository;
             _notificationService = notificationService;
->>>>>>> Stashed changes
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -48,7 +45,7 @@ namespace HanoConnect.API.Services
         {
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
-            return user; // Trả về user đã được thêm (có thể đã có Id sau khi lưu)
+            return user;
         }
 
         public async Task<bool> UpdateUserAsync(User user)
@@ -59,17 +56,12 @@ namespace HanoConnect.API.Services
                 return false;
             }
 
-<<<<<<< Updated upstream
-            // Cập nhật các thuộc tính cần thiết từ user mới vào existingUser
-=======
->>>>>>> Stashed changes
             existingUser.Email = user.Email;
-            existingUser.PasswordHash = user.PasswordHash; // Lưu ý: cần xử lý băm mật khẩu
+            existingUser.PasswordHash = user.PasswordHash;
             existingUser.FullName = user.FullName;
             existingUser.PhoneNumber = user.PhoneNumber;
             existingUser.DateOfBirth = user.DateOfBirth;
             existingUser.District = user.District;
-            // UpdatedAt sẽ được trigger tự động bởi database
 
             _userRepository.Update(existingUser);
             return await _userRepository.SaveChangesAsync();
@@ -90,8 +82,6 @@ namespace HanoConnect.API.Services
         {
             return await _userRepository.GetUserByEmailAsync(email);
         }
-<<<<<<< Updated upstream
-=======
 
         public async Task<VolunteerProfileDto?> GetVolunteerProfileAsync(int userId)
         {
@@ -120,21 +110,25 @@ namespace HanoConnect.API.Services
             return profileDto;
         }
 
+        // Xử lý logic đăng ký người dùng mới
         public async Task<(User? user, string? errorMessage)> RegisterUserAsync(RegisterRequestDto registerDto)
         {
+            // Kiểm tra email đã tồn tại chưa
             var existingUser = await _userRepository.GetUserByEmailAsync(registerDto.Email);
             if (existingUser != null)
             {
                 return (null, "Email đã được sử dụng.");
             }
 
+            // Tìm RoleId dựa trên chuỗi Role gửi lên
             var role = await _roleRepository.GetRoleByNameAsync(registerDto.Role);
             if (role == null)
             {
                 return (null, "Vai trò không hợp lệ.");
             }
 
-            var hashedPassword = registerDto.Password;
+            // Băm mật khẩu (trong thực tế dùng thư viện như BCrypt.Net)
+            var hashedPassword = registerDto.Password; // Tạm thời không băm để dễ test
 
             var user = new User
             {
@@ -143,16 +137,20 @@ namespace HanoConnect.API.Services
                 FullName = registerDto.FullName,
             };
 
+            // Dùng transaction để đảm bảo tính toàn vẹn dữ liệu
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // 1. Tạo User
                 await _userRepository.AddAsync(user);
                 await _userRepository.SaveChangesAsync();
 
+                // 2. Gán Role cho User
                 var userRole = new UserRole { UserId = user.UserId, RoleId = role.RoleId };
                 _context.UserRoles.Add(userRole);
                 await _context.SaveChangesAsync();
 
+                // 3. Nếu là Organization, tạo bản ghi Organization
                 if (role.RoleName.Equals("Organization", System.StringComparison.OrdinalIgnoreCase))
                 {
                     if (string.IsNullOrWhiteSpace(registerDto.OrganizationName))
@@ -164,15 +162,17 @@ namespace HanoConnect.API.Services
                     {
                         UserId = user.UserId,
                         OrganizationName = registerDto.OrganizationName,
-                        ContactPerson = user.FullName
+                        ContactPerson = user.FullName // Mặc định người liên hệ là người tạo tài khoản
                     };
                     await _organizationRepository.AddAsync(organization);
                     await _organizationRepository.SaveChangesAsync();
                 }
 
+                // 4. Tạo thông báo chào mừng
                 var message = "Chào mừng bạn đến với HanoConnect! Hãy bắt đầu hành trình kết nối và cống hiến ngay hôm nay.";
                 await _notificationService.CreateNotificationAsync(user.UserId, message);
 
+                // Hoàn tất transaction
                 await transaction.CommitAsync();
 
                 return (user, null);
@@ -180,10 +180,64 @@ namespace HanoConnect.API.Services
             catch (System.Exception ex)
             {
                 await transaction.RollbackAsync();
+                // Log lỗi ra console của server để debug
                 System.Console.WriteLine(ex.ToString());
                 return (null, "Đã có lỗi xảy ra trong quá trình đăng ký.");
             }
         }
->>>>>>> Stashed changes
+
+        public async Task<(bool success, string? errorMessage)> UpdateVolunteerProfileAsync(int userId, VolunteerProfileUpdateDto updateDto)
+        {
+            var user = await _context.Users
+                .Include(u => u.VolunteerSkills)
+                .Include(u => u.VolunteerCauses)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                return (false, "Không tìm thấy người dùng.");
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                user.FullName = updateDto.FullName;
+                user.PhoneNumber = updateDto.PhoneNumber;
+                user.District = updateDto.District;
+                user.UpdatedAt = System.DateTime.UtcNow;
+                _userRepository.Update(user);
+
+                var currentSkillIds = user.VolunteerSkills.Select(s => s.SkillId).ToList();
+                var skillsToRemove = user.VolunteerSkills.Where(s => !updateDto.SkillIds.Contains(s.SkillId)).ToList();
+                var skillIdsToAdd = updateDto.SkillIds.Where(id => !currentSkillIds.Contains(id)).ToList();
+
+                _context.VolunteerSkills.RemoveRange(skillsToRemove);
+                foreach (var skillId in skillIdsToAdd)
+                {
+                    _context.VolunteerSkills.Add(new VolunteerSkill { UserId = userId, SkillId = skillId });
+                }
+
+                var currentCauseIds = user.VolunteerCauses.Select(c => c.CauseId).ToList();
+                var causesToRemove = user.VolunteerCauses.Where(c => !updateDto.CauseIds.Contains(c.CauseId)).ToList();
+                var causeIdsToAdd = updateDto.CauseIds.Where(id => !currentCauseIds.Contains(id)).ToList();
+
+                _context.VolunteerCauses.RemoveRange(causesToRemove);
+                foreach (var causeId in causeIdsToAdd)
+                {
+                    _context.VolunteerCauses.Add(new VolunteerCause { UserId = userId, CauseId = causeId });
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, null);
+            }
+            catch (System.Exception ex)
+            {
+                await transaction.RollbackAsync();
+                System.Console.WriteLine(ex);
+                return (false, "Đã có lỗi xảy ra khi cập nhật.");
+            }
+        }
     }
 }

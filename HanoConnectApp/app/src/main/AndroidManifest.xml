@@ -15,8 +15,21 @@
         android:theme="@style/Theme.HanoConnectApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name=".MainActivity"
+            android:name=".ReviewApplicationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ViewApplicantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ApplyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OpportunityDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".GuestScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,8 +37,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<<<<<<< Updated upstream
-=======
         <activity
             android:name=".CreateCampaignActivity"
             android:exported="false" />
@@ -36,7 +47,7 @@
             android:name=".MainActivity"
             android:exported="true" />
 
-        <!-- Khai báo các Activity cho luồng đăng ký -->
+        <!-- Các Activity cho luồng đăng ký -->
         <activity
             android:name=".ChooseRoleActivity"
             android:exported="false" />
@@ -44,7 +55,11 @@
             android:name=".RegisterActivity"
             android:exported="false" />
 
->>>>>>> Stashed changes
+        <!-- Activity cho việc sửa profile -->
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

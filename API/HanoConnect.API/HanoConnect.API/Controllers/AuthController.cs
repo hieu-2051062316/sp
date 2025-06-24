@@ -32,9 +32,11 @@ namespace HanoConnect.API.Controllers
 
             if (user == null)
             {
+                // Trả về lỗi 400 Bad Request nếu có lỗi từ service
                 return BadRequest(new { message = errorMessage });
             }
 
+            // Trả về 201 Created khi đăng ký thành công
             return StatusCode(201, new { message = "Đăng ký thành công." });
         }
 
@@ -46,6 +48,7 @@ namespace HanoConnect.API.Controllers
                 return BadRequest("Yêu cầu không hợp lệ.");
             }
 
+            // Tìm người dùng bằng email, đồng thời lấy cả thông tin UserRoles và Role
             var user = await _context.Users
                                      .Include(u => u.UserRoles)
                                      .ThenInclude(ur => ur.Role)
@@ -67,6 +70,7 @@ namespace HanoConnect.API.Controllers
                 Role = userRole
             };
 
+            // Nếu người dùng là một tổ chức, tìm và đính kèm OrganizationId
             if (userRole.Equals("Organization", System.StringComparison.OrdinalIgnoreCase))
             {
                 var organization = await _context.Organizations

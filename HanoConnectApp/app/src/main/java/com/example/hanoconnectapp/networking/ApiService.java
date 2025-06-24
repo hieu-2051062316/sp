@@ -41,6 +41,7 @@ public interface ApiService {
     @GET("api/Opportunity/by-organization/{organizationId}")
     Call<List<OpportunityResponseDto>> getOpportunitiesByOrganization(@Path("organizationId") int organizationId);
 
+    // API tìm kiếm cơ hội
     @GET("api/opportunity/search")
     Call<List<OpportunityResponseDto>> searchOpportunities(@Query("keyword") String keyword);
 
@@ -67,7 +68,7 @@ public interface ApiService {
     Call<ResponseBody> register(@Body RegisterRequest registerRequest);
 
 
-    // APIs lấy danh mục (Causes, Skills)
+    // APIs lấy danh mục
     @GET("api/Causes")
     Call<List<Cause>> getCauses();
 
@@ -75,7 +76,7 @@ public interface ApiService {
     Call<List<SkillDto>> getSkills();
 
 
-    // API lấy và cập nhật thông tin Profile
+    // API cho Profile
     @GET("api/users/{userId}/profile")
     Call<VolunteerProfileResponse> getVolunteerProfile(@Path("userId") int userId);
 

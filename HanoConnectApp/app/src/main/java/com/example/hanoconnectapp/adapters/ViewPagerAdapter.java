@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.hanoconnectapp.HomeFragment;
 import com.example.hanoconnectapp.fragments.FollowedFragment;
+import com.example.hanoconnectapp.fragments.HomeFragment; // Sửa đường dẫn import
 import com.example.hanoconnectapp.fragments.ProfileFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {

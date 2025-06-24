@@ -21,8 +21,9 @@ public class GuestScreenActivity extends AppCompatActivity {
         });
 
         btnRegister.setOnClickListener(v -> {
-            // Tạm thời hiển thị Toast, sau này sẽ mở màn hình đăng ký
-            // Toast.makeText(GuestScreenActivity.this, "Chức năng Đăng ký", Toast.LENGTH_SHORT).show();
+            // Mở màn hình chọn vai trò
+            Intent intent = new Intent(GuestScreenActivity.this, ChooseRoleActivity.class);
+            startActivity(intent);
         });
     }
 }

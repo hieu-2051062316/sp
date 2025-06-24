@@ -9,9 +9,11 @@ import com.example.hanoconnectapp.models.MyApplicationResponse;
 import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 import com.example.hanoconnectapp.models.OrganizationProfileResponse;
+import com.example.hanoconnectapp.models.RegisterRequest;
 import com.example.hanoconnectapp.models.SkillDto;
 import com.example.hanoconnectapp.models.UpdateApplicationStatusRequest;
 import com.example.hanoconnectapp.models.VolunteerProfileResponse;
+import com.example.hanoconnectapp.models.VolunteerProfileUpdateRequest;
 
 import java.util.List;
 
@@ -61,6 +63,9 @@ public interface ApiService {
     @POST("api/Auth/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
+    @POST("api/Auth/register")
+    Call<ResponseBody> register(@Body RegisterRequest registerRequest);
+
 
     // APIs lấy danh mục (Causes, Skills)
     @GET("api/Causes")
@@ -70,9 +75,12 @@ public interface ApiService {
     Call<List<SkillDto>> getSkills();
 
 
-    // API lấy thông tin Profile
+    // API lấy và cập nhật thông tin Profile
     @GET("api/users/{userId}/profile")
     Call<VolunteerProfileResponse> getVolunteerProfile(@Path("userId") int userId);
+
+    @PUT("api/users/{userId}/profile")
+    Call<ResponseBody> updateVolunteerProfile(@Path("userId") int userId, @Body VolunteerProfileUpdateRequest request);
 
     @GET("api/organizations/{orgId}/profile")
     Call<OrganizationProfileResponse> getOrganizationProfile(@Path("orgId") int orgId);

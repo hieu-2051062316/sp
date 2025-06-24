@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="etEditOrgPhoneNumber" type="id" />
-    <item name="etEditOrgContactPerson" type="id" />
-    <item name="etEditOrgAddress" type="id" />
-    <item name="etEditOrgWebsite" type="id" />
-    <item name="etEditOrgDescription" type="id" />
-    <item name="btnSaveOrganizationProfile" type="id" />
-</resources>

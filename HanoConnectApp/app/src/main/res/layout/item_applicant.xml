@@ -41,11 +41,19 @@
             tools:text="Nộp ngày: 23/06/2025" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnViewCv"
-        style="@style/Widget.Material3.Button.TextButton"
+    <!-- Thay thế nút "Xem CV" bằng TextView hiển thị trạng thái -->
+    <TextView
+        android:id="@+id/tvApplicantStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Xem CV" />
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="@drawable/edit_text_background"
+        tools:text="Pending"
+        tools:textColor="@color/status_pending" />
 
 </LinearLayout>

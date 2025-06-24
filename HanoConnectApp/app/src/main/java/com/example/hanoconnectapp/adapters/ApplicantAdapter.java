@@ -8,23 +8,24 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.hanoconnectapp.R;
 import com.example.hanoconnectapp.ReviewApplicationActivity;
-import com.example.hanoconnectapp.models.ApplicantResponse; // Sử dụng model mới
+import com.example.hanoconnectapp.models.ApplicantResponse;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.ApplicantViewHolder> {
 
     private List<ApplicantResponse> applicantList;
     private Context context;
 
-    // Sửa constructor để nhận List<ApplicantResponse>
     public ApplicantAdapter(Context context, List<ApplicantResponse> applicantList) {
         this.context = context;
         this.applicantList = applicantList;
@@ -42,7 +43,6 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
         ApplicantResponse item = applicantList.get(position);
         holder.tvApplicantName.setText(item.getVolunteerName());
 
-        // Format lại ngày tháng cho dễ nhìn
         try {
             DateTimeFormatter inputFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
             LocalDateTime dateTime = LocalDateTime.parse(item.getApplicationTime(), inputFormatter);
@@ -52,16 +52,29 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
             holder.tvApplyDate.setText("Nộp ngày: " + item.getApplicationTime());
         }
 
-        // Tạm thời vẫn dùng ảnh placeholder
         Glide.with(context)
                 .load(R.drawable.ic_person_placeholder)
                 .circleCrop()
                 .into(holder.ivApplicantAvatar);
 
-        // Thiết lập sự kiện click cho toàn bộ item
+        // Cập nhật text và màu cho trạng thái
+        holder.tvApplicantStatus.setText(item.getStatus());
+        switch (item.getStatus().toLowerCase(Locale.ROOT)) {
+            case "accepted":
+                holder.tvApplicantStatus.setTextColor(ContextCompat.getColor(context, R.color.status_accepted));
+                break;
+            case "rejected":
+                holder.tvApplicantStatus.setTextColor(ContextCompat.getColor(context, R.color.status_rejected));
+                break;
+            case "pending":
+            default:
+                holder.tvApplicantStatus.setTextColor(ContextCompat.getColor(context, R.color.status_pending));
+                break;
+        }
+
+        // Sự kiện click cho toàn bộ item để vào màn hình duyệt chi tiết
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ReviewApplicationActivity.class);
-            // Gửi toàn bộ đối tượng ApplicantResponse qua Intent
             intent.putExtra("APPLICANT_DETAIL", item);
             context.startActivity(intent);
         });
@@ -76,12 +89,14 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
         ImageView ivApplicantAvatar;
         TextView tvApplicantName;
         TextView tvApplyDate;
+        TextView tvApplicantStatus; // View mới cho trạng thái
 
         public ApplicantViewHolder(@NonNull View itemView) {
             super(itemView);
             ivApplicantAvatar = itemView.findViewById(R.id.ivApplicantAvatar);
             tvApplicantName = itemView.findViewById(R.id.tvApplicantName);
             tvApplyDate = itemView.findViewById(R.id.tvApplyDate);
+            tvApplicantStatus = itemView.findViewById(R.id.tvApplicantStatus); // Ánh xạ view mới
         }
     }
 }

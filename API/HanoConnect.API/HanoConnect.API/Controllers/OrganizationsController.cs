@@ -2,7 +2,6 @@
 using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -42,7 +41,6 @@ namespace HanoConnect.API.Controllers
         }
 
         // GET: api/Organizations/5/profile
-        // Endpoint để lấy thông tin Profile của Organization
         [HttpGet("{id}/profile")]
         public async Task<ActionResult<OrganizationProfileDto>> GetOrganizationProfile(int id)
         {
@@ -54,9 +52,15 @@ namespace HanoConnect.API.Controllers
             return Ok(profile);
         }
 
+        // GET: api/Organizations/5/recent-applicants
+        [HttpGet("{id}/recent-applicants")]
+        public async Task<ActionResult<IEnumerable<RecentApplicantDto>>> GetRecentApplicants(int id)
+        {
+            var applicants = await _organizationService.GetRecentApplicantsAsync(id);
+            return Ok(applicants);
+        }
 
         // GET: api/Organizations/byuser/1
-        // Lấy tổ chức theo UserId
         [HttpGet("byuser/{userId}")]
         public async Task<ActionResult<Organization>> GetOrganizationByUserId(int userId)
         {
@@ -68,7 +72,6 @@ namespace HanoConnect.API.Controllers
             return Ok(organization);
         }
 
-
         // POST: api/Organizations
         [HttpPost]
         public async Task<ActionResult<Organization>> PostOrganization(Organization organization)
@@ -79,23 +82,10 @@ namespace HanoConnect.API.Controllers
                 return BadRequest("Associated User ID does not exist.");
             }
 
-            var existingOrgByName = await _organizationService.GetOrganizationByNameAsync(organization.OrganizationName);
-            if (existingOrgByName != null)
-            {
-                return Conflict("Organization with this name already exists.");
-            }
-
-            var existingOrgByUserId = await _organizationService.GetOrganizationByUserIdAsync(organization.UserId);
-            if (existingOrgByUserId != null)
-            {
-                return Conflict("This User ID is already associated with another organization.");
-            }
-
             var addedOrganization = await _organizationService.AddOrganizationAsync(organization);
-
             if (addedOrganization == null)
             {
-                return BadRequest("Could not add organization. Check user ID and other details.");
+                return BadRequest("Could not add organization.");
             }
 
             return CreatedAtAction(nameof(GetOrganization), new { id = addedOrganization.OrganizationId }, addedOrganization);
@@ -110,7 +100,6 @@ namespace HanoConnect.API.Controllers
                 return BadRequest("Organization ID mismatch.");
             }
 
-            // Các bước kiểm tra logic khác...
             var success = await _organizationService.UpdateOrganizationAsync(organization);
             if (!success)
             {

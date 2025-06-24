@@ -1,9 +1,10 @@
 package com.example.hanoconnectapp.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 import java.util.List;
 
-public class OpportunityResponseDto {
+public class OpportunityResponseDto implements Serializable {
 
     @SerializedName("opportunityId")
     private int opportunityId;
@@ -20,57 +21,62 @@ public class OpportunityResponseDto {
     @SerializedName("startDate")
     private String startDate;
 
-    @SerializedName("endDate")
-    private String endDate;
-
-    @SerializedName("isFlexibleTime")
-    private boolean isFlexibleTime;
-
-    @SerializedName("requiredVolunteers")
-    private Integer requiredVolunteers; // Dùng Integer để chấp nhận giá trị null
-
-    @SerializedName("benefits")
-    private String benefits;
-
-    @SerializedName("contactInfo")
-    private String contactInfo;
-
-    @SerializedName("applicationDeadline")
-    private String applicationDeadline;
-
     @SerializedName("status")
     private String status;
-
-    @SerializedName("isApprovedByAdmin")
-    private boolean isApprovedByAdmin;
-
-    @SerializedName("createdAt")
-    private String createdAt;
-
-    @SerializedName("updatedAt")
-    private String updatedAt;
-
-    @SerializedName("organizationId")
-    private int organizationId;
 
     @SerializedName("organizationName")
     private String organizationName;
 
-    @SerializedName("organizationContactPerson")
-    private String organizationContactPerson;
-
-    @SerializedName("causeId")
-    private int causeId;
-
-    @SerializedName("causeName")
-    private String causeName;
+    // Thêm thuộc tính mới để lấy URL logo
+    @SerializedName("organizationLogoUrl")
+    private String organizationLogoUrl;
 
     @SerializedName("skills")
     private List<SkillDto> skills;
 
-    // Getters cho các trường quan trọng để hiển thị
-    public int getOpportunityId() { return opportunityId; }
-    public String getTitle() { return title; }
-    public String getOrganizationName() { return organizationName; }
-    public String getLocation() { return location; }
+    public OpportunityResponseDto() {
+    }
+
+    public OpportunityResponseDto(String title, String organizationName, String description) {
+        this.title = title;
+        this.organizationName = organizationName;
+        this.description = description;
+        this.organizationLogoUrl = null; // Logo sẽ không hiển thị cho dữ liệu giả
+    }
+
+    public int getOpportunityId() {
+        return opportunityId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public String getOrganizationLogoUrl() {
+        return organizationLogoUrl;
+    }
+
+    public List<SkillDto> getSkills() {
+        return skills;
+    }
 }

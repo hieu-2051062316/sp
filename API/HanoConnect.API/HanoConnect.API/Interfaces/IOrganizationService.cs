@@ -1,4 +1,5 @@
-﻿using HanoConnect.API.Models;
+﻿using HanoConnect.API.DTOs; // Cần cho DTO
+using HanoConnect.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,5 +14,8 @@ namespace HanoConnect.API.Interfaces
         Task<bool> DeleteOrganizationAsync(int id);
         Task<Organization?> GetOrganizationByUserIdAsync(int userId);
         Task<Organization?> GetOrganizationByNameAsync(string organizationName);
+
+        // Lấy thông tin profile của một Organization
+        Task<OrganizationProfileDto?> GetOrganizationProfileAsync(int organizationId);
     }
 }

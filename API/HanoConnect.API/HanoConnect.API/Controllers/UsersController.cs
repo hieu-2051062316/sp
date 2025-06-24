@@ -1,4 +1,5 @@
-﻿using HanoConnect.API.Interfaces;
+﻿using HanoConnect.API.DTOs;
+using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -37,15 +38,24 @@ namespace HanoConnect.API.Controllers
             return Ok(user);
         }
 
+        // GET: api/Users/5/profile
+        // Endpoint để lấy thông tin Profile của Volunteer
+        [HttpGet("{id}/profile")]
+        public async Task<ActionResult<VolunteerProfileDto>> GetVolunteerProfile(int id)
+        {
+            var profile = await _userService.GetVolunteerProfileAsync(id);
+            if (profile == null)
+            {
+                return NotFound();
+            }
+            return Ok(profile);
+        }
+
         // POST: api/Users
-        // Để đơn giản hóa, chúng ta sẽ thêm User trực tiếp. Trong thực tế cần có DTOs và xử lý băm mật khẩu
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            // TODO: Trong ứng dụng thực tế, cần băm mật khẩu trước khi lưu vào DB.
-            // Ví dụ: user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-            // Hoặc bạn sẽ có một DTO cho việc đăng ký và xử lý băm mật khẩu trong Service.
-
+            // TODO: Cần xử lý băm mật khẩu trong thực tế
             var addedUser = await _userService.AddUserAsync(user);
             return CreatedAtAction(nameof(GetUser), new { id = addedUser?.UserId }, addedUser);
         }
@@ -59,15 +69,12 @@ namespace HanoConnect.API.Controllers
                 return BadRequest("User ID mismatch.");
             }
 
-            // TODO: Trong ứng dụng thực tế, cần xử lý cẩn thận việc cập nhật mật khẩu.
-            // Có thể không cho phép cập nhật mật khẩu qua API này hoặc yêu cầu mật khẩu cũ.
-
             var success = await _userService.UpdateUserAsync(user);
             if (!success)
             {
-                return NotFound(); // Hoặc lỗi chi tiết hơn nếu không tìm thấy hoặc lỗi cập nhật khác
+                return NotFound();
             }
-            return NoContent(); // 204 No Content - thành công nhưng không có nội dung trả về
+            return NoContent();
         }
 
         // DELETE: api/Users/5

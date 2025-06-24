@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lớp nền màu trắng để che đi đường kẻ của các tab khác -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+    <!-- Lớp viền -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="1dp" android:color="#000000" />
+        </shape>
+    </item>
+    <!-- Lớp màu trắng bên trong, đè lên cạnh dưới của lớp viền -->
+    <item android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+</layer-list>

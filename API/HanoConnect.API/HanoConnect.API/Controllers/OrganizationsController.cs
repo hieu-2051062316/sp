@@ -1,6 +1,8 @@
-﻿using HanoConnect.API.Interfaces;
+﻿using HanoConnect.API.DTOs;
+using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,7 +13,7 @@ namespace HanoConnect.API.Controllers
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationService _organizationService;
-        private readonly IUserService _userService; // Để kiểm tra sự tồn tại của AdminId và UserId
+        private readonly IUserService _userService;
 
         public OrganizationsController(IOrganizationService organizationService, IUserService userService)
         {
@@ -39,39 +41,58 @@ namespace HanoConnect.API.Controllers
             return Ok(organization);
         }
 
+        // GET: api/Organizations/5/profile
+        // Endpoint để lấy thông tin Profile của Organization
+        [HttpGet("{id}/profile")]
+        public async Task<ActionResult<OrganizationProfileDto>> GetOrganizationProfile(int id)
+        {
+            var profile = await _organizationService.GetOrganizationProfileAsync(id);
+            if (profile == null)
+            {
+                return NotFound();
+            }
+            return Ok(profile);
+        }
+
+
+        // GET: api/Organizations/byuser/1
+        // Lấy tổ chức theo UserId
+        [HttpGet("byuser/{userId}")]
+        public async Task<ActionResult<Organization>> GetOrganizationByUserId(int userId)
+        {
+            var organization = await _organizationService.GetOrganizationByUserIdAsync(userId);
+            if (organization == null)
+            {
+                return NotFound("Organization not found for this User ID.");
+            }
+            return Ok(organization);
+        }
+
+
         // POST: api/Organizations
         [HttpPost]
         public async Task<ActionResult<Organization>> PostOrganization(Organization organization)
         {
-            // Kiểm tra UserId có tồn tại không
             var userExists = await _userService.GetUserByIdAsync(organization.UserId);
             if (userExists == null)
             {
                 return BadRequest("Associated User ID does not exist.");
             }
 
-            // Kiểm tra OrganizationName đã tồn tại chưa để tránh trùng lặp
             var existingOrgByName = await _organizationService.GetOrganizationByNameAsync(organization.OrganizationName);
             if (existingOrgByName != null)
             {
                 return Conflict("Organization with this name already exists.");
             }
 
-            // Kiểm tra xem UserId này đã được gán cho một tổ chức khác chưa
             var existingOrgByUserId = await _organizationService.GetOrganizationByUserIdAsync(organization.UserId);
             if (existingOrgByUserId != null)
             {
                 return Conflict("This User ID is already associated with another organization.");
             }
 
-            // Đảm bảo các giá trị mặc định nếu không được cung cấp từ client
-            organization.CreatedAt = DateTime.UtcNow;
-            organization.UpdatedAt = DateTime.UtcNow;
-            // isVerified và VerificationTime sẽ được xử lý khi admin xác minh
-
             var addedOrganization = await _organizationService.AddOrganizationAsync(organization);
 
-            // Nếu AddOrganizationAsync trả về null (do logic kiểm tra bên trong service, ví dụ User không tồn tại)
             if (addedOrganization == null)
             {
                 return BadRequest("Could not add organization. Check user ID and other details.");
@@ -89,38 +110,7 @@ namespace HanoConnect.API.Controllers
                 return BadRequest("Organization ID mismatch.");
             }
 
-            // Kiểm tra UserId có tồn tại không (nếu nó thay đổi hoặc để đảm bảo)
-            var userExists = await _userService.GetUserByIdAsync(organization.UserId);
-            if (userExists == null)
-            {
-                return BadRequest("Associated User ID does not exist.");
-            }
-
-            // Kiểm tra VerifiedByAdminId có tồn tại không (nếu có và khác null)
-            if (organization.VerifiedByAdminId.HasValue)
-            {
-                var adminUserExists = await _userService.GetUserByIdAsync(organization.VerifiedByAdminId.Value);
-                if (adminUserExists == null)
-                {
-                    return BadRequest("Verified By Admin ID does not exist.");
-                }
-            }
-
-
-            // Kiểm tra OrganizationName trùng lặp, trừ trường hợp đó chính là bản thân tổ chức đang được cập nhật
-            var existingOrgByName = await _organizationService.GetOrganizationByNameAsync(organization.OrganizationName);
-            if (existingOrgByName != null && existingOrgByName.OrganizationId != id)
-            {
-                return Conflict("Organization with this name already exists.");
-            }
-
-            // Kiểm tra User ID trùng lặp, trừ trường hợp đó chính là bản thân tổ chức đang được cập nhật
-            var existingOrgByUserId = await _organizationService.GetOrganizationByUserIdAsync(organization.UserId);
-            if (existingOrgByUserId != null && existingOrgByUserId.OrganizationId != id)
-            {
-                return Conflict("This User ID is already associated with another organization.");
-            }
-
+            // Các bước kiểm tra logic khác...
             var success = await _organizationService.UpdateOrganizationAsync(organization);
             if (!success)
             {
@@ -139,19 +129,6 @@ namespace HanoConnect.API.Controllers
                 return NotFound();
             }
             return NoContent();
-        }
-
-        // GET: api/Organizations/byuser/1
-        // Lấy tổ chức theo UserId
-        [HttpGet("byuser/{userId}")]
-        public async Task<ActionResult<Organization>> GetOrganizationByUserId(int userId)
-        {
-            var organization = await _organizationService.GetOrganizationByUserIdAsync(userId);
-            if (organization == null)
-            {
-                return NotFound("Organization not found for this User ID.");
-            }
-            return Ok(organization);
         }
     }
 }

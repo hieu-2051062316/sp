@@ -1,19 +1,26 @@
-﻿using HanoConnect.API.Interfaces;
+﻿using HanoConnect.API.Data;
+using HanoConnect.API.DTOs;
+using HanoConnect.API.Interfaces;
 using HanoConnect.API.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace HanoConnect.API.Services
 {
     public class OrganizationService : IOrganizationService
     {
         private readonly IOrganizationRepository _organizationRepository;
-        private readonly IUserRepository _userRepository; // Cần để kiểm tra UserId tồn tại
+        private readonly IUserRepository _userRepository;
+        private readonly ApplicationDbContext _context;
 
-        public OrganizationService(IOrganizationRepository organizationRepository, IUserRepository userRepository)
+        public OrganizationService(IOrganizationRepository organizationRepository, IUserRepository userRepository, ApplicationDbContext context)
         {
             _organizationRepository = organizationRepository;
             _userRepository = userRepository;
+            _context = context;
         }
 
         public async Task<IEnumerable<Organization>> GetAllOrganizationsAsync()
@@ -28,12 +35,9 @@ namespace HanoConnect.API.Services
 
         public async Task<Organization?> AddOrganizationAsync(Organization organization)
         {
-            // Logic nghiệp vụ: Đảm bảo UserId liên kết tồn tại
             var userExists = await _userRepository.GetByIdAsync(organization.UserId);
             if (userExists == null)
             {
-                // Bạn có thể xử lý lỗi ở đây, ví dụ: throw new ArgumentException("User does not exist.");
-                // Hoặc trả về null để controller biết lỗi
                 return null;
             }
 
@@ -50,7 +54,6 @@ namespace HanoConnect.API.Services
                 return false;
             }
 
-            // Cập nhật các thuộc tính
             existingOrganization.OrganizationName = organization.OrganizationName;
             existingOrganization.ContactPerson = organization.ContactPerson;
             existingOrganization.ContactPhone = organization.ContactPhone;
@@ -60,20 +63,17 @@ namespace HanoConnect.API.Services
             existingOrganization.IsVerified = organization.IsVerified;
             existingOrganization.VerifiedByAdminId = organization.VerifiedByAdminId;
             existingOrganization.VerificationTime = organization.VerificationTime;
-            existingOrganization.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian
+            existingOrganization.UpdatedAt = DateTime.UtcNow;
 
-            // Kiểm tra UserId nếu nó thay đổi (hoặc luôn kiểm tra để đảm bảo tính toàn vẹn)
             if (existingOrganization.UserId != organization.UserId)
             {
                 var newUserExists = await _userRepository.GetByIdAsync(organization.UserId);
                 if (newUserExists == null)
                 {
-                    // Xử lý lỗi nếu UserId mới không tồn tại
                     return false;
                 }
                 existingOrganization.UserId = organization.UserId;
             }
-
 
             _organizationRepository.Update(existingOrganization);
             return await _organizationRepository.SaveChangesAsync();
@@ -98,6 +98,33 @@ namespace HanoConnect.API.Services
         public async Task<Organization?> GetOrganizationByNameAsync(string organizationName)
         {
             return await _organizationRepository.GetOrganizationByNameAsync(organizationName);
+        }
+
+        // Lấy thông tin chi tiết cho trang Profile của Organization
+        public async Task<OrganizationProfileDto?> GetOrganizationProfileAsync(int organizationId)
+        {
+            var organization = await _context.Organizations
+                .Where(o => o.OrganizationId == organizationId)
+                .Include(o => o.User) // Join để lấy email
+                .Include(o => o.Opportunities) // Join để đếm
+                    .ThenInclude(opp => opp.Applications) // Join sâu hơn để đếm đơn
+                .FirstOrDefaultAsync();
+
+            if (organization == null) return null;
+
+            var profileDto = new OrganizationProfileDto
+            {
+                OrganizationId = organization.OrganizationId,
+                OrganizationName = organization.OrganizationName,
+                Email = organization.User?.Email, // Lấy email từ user liên kết
+                Description = organization.Description,
+                Address = organization.Address,
+                Website = organization.Website,
+                TotalOpportunities = organization.Opportunities.Count,
+                TotalApplications = organization.Opportunities.SelectMany(opp => opp.Applications).Count()
+            };
+
+            return profileDto;
         }
     }
 }

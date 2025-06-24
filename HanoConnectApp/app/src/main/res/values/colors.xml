@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Màu cho trạng thái đơn ứng tuyển -->
+    <color name="status_accepted">#4CAF50</color> <!-- Xanh lá -->
+    <color name="status_rejected">#F44336</color>  <!-- Đỏ -->
+    <color name="status_pending">#FF9800</color>   <!-- Cam -->
 </resources>

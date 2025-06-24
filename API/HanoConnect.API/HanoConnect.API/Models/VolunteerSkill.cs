@@ -6,18 +6,18 @@ namespace HanoConnect.API.Models
     [Table("VolunteerSkills")]
     public class VolunteerSkill
     {
-        [Key] // Primary key for this junction table
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-incrementing identity column
-        public int VolunteerSkillId { get; set; } // SQL Server uses identity column for PK
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int VolunteerSkillId { get; set; }
 
         public int UserId { get; set; }
         public int SkillId { get; set; }
 
-        // Navigation properties
+        // Sửa lỗi: Cho phép null và bỏ 'required'
         [ForeignKey("UserId")]
-        public required User User { get; set; } // Thêm 'required'
+        public User? User { get; set; }
 
         [ForeignKey("SkillId")]
-        public required Skill Skill { get; set; } // Thêm 'required'
+        public Skill? Skill { get; set; }
     }
 }

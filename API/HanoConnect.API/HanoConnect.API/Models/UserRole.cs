@@ -6,18 +6,18 @@ namespace HanoConnect.API.Models
     [Table("UserRoles")]
     public class UserRole
     {
-        [Key] // Primary key for this junction table
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-incrementing identity column
-        public int UserRoleId { get; set; } // SQL Server uses identity column, so we need a single PK here
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int UserRoleId { get; set; }
 
         public int UserId { get; set; }
         public int RoleId { get; set; }
 
-        // Navigation properties for foreign keys
+        // Sửa lỗi: Cho phép null và bỏ 'required'
         [ForeignKey("UserId")]
-        public required User User { get; set; } // Added 'required'
+        public User? User { get; set; }
 
         [ForeignKey("RoleId")]
-        public required Role Role { get; set; } // Added 'required'
+        public Role? Role { get; set; }
     }
 }

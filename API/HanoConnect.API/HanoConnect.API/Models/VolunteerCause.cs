@@ -6,18 +6,18 @@ namespace HanoConnect.API.Models
     [Table("VolunteerCauses")]
     public class VolunteerCause
     {
-        [Key] // Primary key for this junction table
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-incrementing identity column
-        public int VolunteerCauseId { get; set; } // SQL Server uses identity column for PK
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int VolunteerCauseId { get; set; }
 
         public int UserId { get; set; }
         public int CauseId { get; set; }
 
-        // Navigation properties
+        // Sửa lỗi: Cho phép null và bỏ 'required'
         [ForeignKey("UserId")]
-        public required User User { get; set; } // Đã thêm 'required'
+        public User? User { get; set; }
 
         [ForeignKey("CauseId")]
-        public required Cause Cause { get; set; } // Đã thêm 'required'
+        public Cause? Cause { get; set; }
     }
 }

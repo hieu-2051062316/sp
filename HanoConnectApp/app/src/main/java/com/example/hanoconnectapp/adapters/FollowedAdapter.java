@@ -1,21 +1,27 @@
 package com.example.hanoconnectapp.adapters;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.hanoconnectapp.R;
-import com.example.hanoconnectapp.models.FollowedOpportunity;
+import com.example.hanoconnectapp.models.MyApplicationResponse;
 import java.util.List;
 
 public class FollowedAdapter extends RecyclerView.Adapter<FollowedAdapter.FollowedViewHolder> {
 
-    private List<FollowedOpportunity> followedList;
+    private List<MyApplicationResponse> followedList;
+    private Context context;
 
-    public FollowedAdapter(List<FollowedOpportunity> followedList) {
+    public FollowedAdapter(Context context, List<MyApplicationResponse> followedList) {
+        this.context = context;
         this.followedList = followedList;
     }
 
@@ -28,10 +34,29 @@ public class FollowedAdapter extends RecyclerView.Adapter<FollowedAdapter.Follow
 
     @Override
     public void onBindViewHolder(@NonNull FollowedViewHolder holder, int position) {
-        FollowedOpportunity item = followedList.get(position);
-        holder.tvCampaignName.setText(item.getCampaignName());
+        MyApplicationResponse item = followedList.get(position);
+        holder.tvCampaignName.setText(item.getOpportunityTitle());
         holder.tvStatus.setText(item.getStatus());
-        holder.ivCampaignLogo.setImageResource(item.getLogoResId());
+
+        // Cập nhật màu sắc cho status để dễ phân biệt
+        switch (item.getStatus().toLowerCase()) {
+            case "accepted":
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_accepted));
+                break;
+            case "rejected":
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_rejected));
+                break;
+            case "pending":
+            default:
+                holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.status_pending));
+                break;
+        }
+
+        // Sử dụng Glide để hiển thị logo placeholder
+        Glide.with(context)
+                .load(R.drawable.logo_hanoconnect)
+                .circleCrop()
+                .into(holder.ivCampaignLogo);
     }
 
     @Override

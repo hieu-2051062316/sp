@@ -5,10 +5,13 @@ import com.example.hanoconnectapp.models.ApplyRequest;
 import com.example.hanoconnectapp.models.Cause;
 import com.example.hanoconnectapp.models.LoginRequest;
 import com.example.hanoconnectapp.models.LoginResponse;
+import com.example.hanoconnectapp.models.MyApplicationResponse;
 import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
+import com.example.hanoconnectapp.models.OrganizationProfileResponse;
 import com.example.hanoconnectapp.models.SkillDto;
 import com.example.hanoconnectapp.models.UpdateApplicationStatusRequest;
+import com.example.hanoconnectapp.models.VolunteerProfileResponse;
 
 import java.util.List;
 
@@ -46,16 +49,27 @@ public interface ApiService {
     @PUT("api/applications/{applicationId}/status")
     Call<ResponseBody> updateApplicationStatus(@Path("applicationId") int applicationId, @Body UpdateApplicationStatusRequest statusRequest);
 
+    @GET("api/applications/my-applications/{volunteerUserId}")
+    Call<List<MyApplicationResponse>> getMyApplications(@Path("volunteerUserId") int volunteerUserId);
+
 
     // API cho Auth
     @POST("api/Auth/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
 
-    // APIs lấy danh mục
+    // APIs lấy danh mục (Causes, Skills)
     @GET("api/Causes")
     Call<List<Cause>> getCauses();
 
     @GET("api/Skills")
     Call<List<SkillDto>> getSkills();
+
+
+    // API lấy thông tin Profile
+    @GET("api/users/{userId}/profile")
+    Call<VolunteerProfileResponse> getVolunteerProfile(@Path("userId") int userId);
+
+    @GET("api/organizations/{orgId}/profile")
+    Call<OrganizationProfileResponse> getOrganizationProfile(@Path("orgId") int orgId);
 }

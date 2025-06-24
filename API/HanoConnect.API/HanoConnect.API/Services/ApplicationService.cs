@@ -21,10 +21,9 @@ namespace HanoConnect.API.Services
             _context = context;
         }
 
-        // ... (hàm CreateApplicationAsync và GetApplicantsForOpportunityAsync giữ nguyên)
-
         public async Task<(Application? application, string? errorMessage)> CreateApplicationAsync(ApplyDto applyDto)
         {
+            // Kiem tra xem nguoi dung da ung tuyen co hoi nay chua
             var existingApplication = await _applicationRepository.FindByUserAndOpportunityAsync(applyDto.VolunteerUserId, applyDto.OpportunityId);
             if (existingApplication != null)
             {
@@ -44,6 +43,7 @@ namespace HanoConnect.API.Services
             await _applicationRepository.AddAsync(application);
             await _applicationRepository.SaveChangesAsync();
 
+            // Tra ve application da duoc tao va khong co loi
             return (application, null);
         }
 
@@ -51,7 +51,7 @@ namespace HanoConnect.API.Services
         {
             var applicants = await _context.Applications
                 .Where(a => a.OpportunityId == opportunityId)
-                .Include(a => a.VolunteerUser)
+                .Include(a => a.VolunteerUser) // Join voi bang Users de lay thong tin nguoi dung
                 .Select(a => new ApplicantDto
                 {
                     ApplicationId = a.ApplicationId,
@@ -67,20 +67,40 @@ namespace HanoConnect.API.Services
             return applicants;
         }
 
-        // Hàm cập nhật trạng thái đơn
         public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string newStatus)
         {
             var application = await _applicationRepository.GetByIdAsync(applicationId);
             if (application == null)
             {
-                return false; // Không tìm thấy đơn
+                return false; // Khong tim thay don
             }
 
             application.Status = newStatus;
-            // Cập nhật thêm các trường khác nếu cần, ví dụ: OrganizationNotes
             _applicationRepository.Update(application);
 
             return await _applicationRepository.SaveChangesAsync();
+        }
+
+        // Lấy danh sách các đơn đã nộp của một tình nguyện viên
+        public async Task<IEnumerable<MyApplicationDto>> GetApplicationsByVolunteerIdAsync(int volunteerUserId)
+        {
+            var myApplications = await _context.Applications
+                .Where(a => a.VolunteerUserId == volunteerUserId)
+                .Include(a => a.Opportunity) // Join để lấy tên Opportunity
+                    .ThenInclude(o => o.Organization) // Join tiếp để lấy tên Organization
+                .Select(a => new MyApplicationDto
+                {
+                    ApplicationId = a.ApplicationId,
+                    OpportunityId = a.OpportunityId,
+                    OpportunityTitle = a.Opportunity.Title,
+                    OrganizationName = a.Opportunity.Organization.OrganizationName,
+                    Status = a.Status,
+                    ApplicationTime = a.ApplicationTime
+                })
+                .OrderByDescending(a => a.ApplicationTime) // Sắp xếp theo ngày nộp mới nhất
+                .ToListAsync();
+
+            return myApplications;
         }
     }
 }

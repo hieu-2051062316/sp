@@ -6,6 +6,7 @@ import com.example.hanoconnectapp.models.Cause;
 import com.example.hanoconnectapp.models.LoginRequest;
 import com.example.hanoconnectapp.models.LoginResponse;
 import com.example.hanoconnectapp.models.MyApplicationResponse;
+import com.example.hanoconnectapp.models.NotificationResponse;
 import com.example.hanoconnectapp.models.OpportunityCreateRequest;
 import com.example.hanoconnectapp.models.OpportunityResponseDto;
 import com.example.hanoconnectapp.models.OrganizationProfileResponse;
@@ -22,6 +23,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
 
@@ -37,6 +39,9 @@ public interface ApiService {
 
     @GET("api/Opportunity/by-organization/{organizationId}")
     Call<List<OpportunityResponseDto>> getOpportunitiesByOrganization(@Path("organizationId") int organizationId);
+
+    @GET("api/opportunity/search")
+    Call<List<OpportunityResponseDto>> searchOpportunities(@Query("keyword") String keyword);
 
 
     // APIs cho Application
@@ -72,4 +77,9 @@ public interface ApiService {
 
     @GET("api/organizations/{orgId}/profile")
     Call<OrganizationProfileResponse> getOrganizationProfile(@Path("orgId") int orgId);
+
+
+    // API lấy thông báo của người dùng
+    @GET("api/notifications/user/{userId}")
+    Call<List<NotificationResponse>> getNotificationsForUser(@Path("userId") int userId);
 }

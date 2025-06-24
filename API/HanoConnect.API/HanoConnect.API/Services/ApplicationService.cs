@@ -13,12 +13,17 @@ namespace HanoConnect.API.Services
     public class ApplicationService : IApplicationService
     {
         private readonly IApplicationRepository _applicationRepository;
+        private readonly INotificationService _notificationService;
         private readonly ApplicationDbContext _context;
 
-        public ApplicationService(IApplicationRepository applicationRepository, ApplicationDbContext context)
+        public ApplicationService(
+            IApplicationRepository applicationRepository,
+            ApplicationDbContext context,
+            INotificationService notificationService)
         {
             _applicationRepository = applicationRepository;
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<(Application? application, string? errorMessage)> CreateApplicationAsync(ApplyDto applyDto)
@@ -43,15 +48,51 @@ namespace HanoConnect.API.Services
             await _applicationRepository.AddAsync(application);
             await _applicationRepository.SaveChangesAsync();
 
-            // Tra ve application da duoc tao va khong co loi
+            // Lay thong tin de tao notification
+            var opportunity = await _context.Opportunities
+                                            .Include(o => o.Organization)
+                                            .FirstOrDefaultAsync(o => o.OpportunityId == applyDto.OpportunityId);
+            if (opportunity != null)
+            {
+                // Gui thong bao cho To chuc
+                var message = $"Có ứng viên mới cho cơ hội '{opportunity.Title}'.";
+                await _notificationService.CreateNotificationAsync(opportunity.Organization.UserId, message);
+            }
+
             return (application, null);
+        }
+
+        public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string newStatus)
+        {
+            var application = await _context.Applications
+                .Include(a => a.Opportunity) // Join để lấy tên cơ hội
+                .FirstOrDefaultAsync(a => a.ApplicationId == applicationId);
+
+            if (application == null)
+            {
+                return false;
+            }
+
+            application.Status = newStatus;
+            _applicationRepository.Update(application);
+            var success = await _applicationRepository.SaveChangesAsync();
+
+            if (success)
+            {
+                // Gui thong bao cho Tinh nguyen vien
+                var statusText = newStatus == "Accepted" ? "chấp nhận" : "từ chối";
+                var message = $"Đơn ứng tuyển của bạn cho cơ hội '{application.Opportunity.Title}' đã được {statusText}.";
+                await _notificationService.CreateNotificationAsync(application.VolunteerUserId, message);
+            }
+
+            return success;
         }
 
         public async Task<IEnumerable<ApplicantDto>> GetApplicantsForOpportunityAsync(int opportunityId)
         {
             var applicants = await _context.Applications
                 .Where(a => a.OpportunityId == opportunityId)
-                .Include(a => a.VolunteerUser) // Join voi bang Users de lay thong tin nguoi dung
+                .Include(a => a.VolunteerUser)
                 .Select(a => new ApplicantDto
                 {
                     ApplicationId = a.ApplicationId,
@@ -67,27 +108,12 @@ namespace HanoConnect.API.Services
             return applicants;
         }
 
-        public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string newStatus)
-        {
-            var application = await _applicationRepository.GetByIdAsync(applicationId);
-            if (application == null)
-            {
-                return false; // Khong tim thay don
-            }
-
-            application.Status = newStatus;
-            _applicationRepository.Update(application);
-
-            return await _applicationRepository.SaveChangesAsync();
-        }
-
-        // Lấy danh sách các đơn đã nộp của một tình nguyện viên
         public async Task<IEnumerable<MyApplicationDto>> GetApplicationsByVolunteerIdAsync(int volunteerUserId)
         {
             var myApplications = await _context.Applications
                 .Where(a => a.VolunteerUserId == volunteerUserId)
-                .Include(a => a.Opportunity) // Join để lấy tên Opportunity
-                    .ThenInclude(o => o.Organization) // Join tiếp để lấy tên Organization
+                .Include(a => a.Opportunity)
+                    .ThenInclude(o => o.Organization)
                 .Select(a => new MyApplicationDto
                 {
                     ApplicationId = a.ApplicationId,
@@ -97,7 +123,7 @@ namespace HanoConnect.API.Services
                     Status = a.Status,
                     ApplicationTime = a.ApplicationTime
                 })
-                .OrderByDescending(a => a.ApplicationTime) // Sắp xếp theo ngày nộp mới nhất
+                .OrderByDescending(a => a.ApplicationTime)
                 .ToListAsync();
 
             return myApplications;

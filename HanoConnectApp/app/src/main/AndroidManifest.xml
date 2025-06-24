@@ -24,6 +24,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<<<<<<< Updated upstream
+=======
+        <activity
+            android:name=".CreateCampaignActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+
+        <!-- Khai báo các Activity cho luồng đăng ký -->
+        <activity
+            android:name=".ChooseRoleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+>>>>>>> Stashed changes
     </application>
 
 </manifest>
